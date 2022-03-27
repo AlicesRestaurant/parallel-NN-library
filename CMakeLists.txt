@@ -13,6 +13,13 @@ set(CMAKE_CXX_STANDARD 17)
 add_library("${LIBRARY_NAME}" NNlib/src/library.cpp NNlib/include/library.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 
-# Create test example and link with the library
+# Set installation prefix of Eigen3
+set(Eigen3_DIR ./Eigen3/share/eigen3/cmake)
+
+# Link Eigen3 with the our library
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+target_link_libraries("${LIBRARY_NAME}" Eigen3::Eigen)
+
+# Create test example and link with our library
 add_executable("${EXECUTABLE_NAME}" main.cpp)
 target_link_libraries("${EXECUTABLE_NAME}" "${LIBRARY_NAME}")
