@@ -5,10 +5,10 @@
 #include <Eigen/Dense>
 
 void hello() {
-    Eigen::MatrixXd m(2,2);
-    m(0,0) = 3;
-    m(1,0) = 2.5;
-    m(0,1) = -1;
-    m(1,1) = m(1,0) + m(0,1);
-    std::cout << m << std::endl;
+    float data[] = {1, 2, 3, 4, 5, 6};
+    Eigen::Map<Eigen::Vector3f> v1(data);
+    v1(0) = 10;
+    for(auto &i: data){
+        std::cout << "i = " << i << '\n';
+    }
 }
