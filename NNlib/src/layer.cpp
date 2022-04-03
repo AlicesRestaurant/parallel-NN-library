@@ -4,16 +4,29 @@
 
 #include "layer.h"
 
-// Output and derivatives calculations
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
-VectorXd Layer::forwardPropagate(const VectorXd &inputs){
-    derivatives = calculateDerivatives(inputs);
-    return calculateOutputs(inputs);
+// Initialization
+
+Layer::Layer(int layerInputsNumber, int nodesNumber){
+    weights.resize(nodesNumber, layerInputsNumber + 1);
+    this->nodesNumber = nodesNumber;
 }
 
-VectorXd Layer::calculateOutputs(const VectorXd &inputs) {
-    VectorXd activationInputs = weights * inputs;
+// Forward propagation
+
+VectorXd Layer::forwardPropagate(const VectorXd &inputs) {
+    VectorXd inputsWithBias(inputs.size() + 1);
+    inputsWithBias << 1;
+    inputsWithBias << inputs;
+    layerInputs = std::move(inputsWithBias);
+    VectorXd activationInputs = calculateActivationInputs();
     return calculateActivations(activationInputs);
+}
+
+VectorXd Layer::calculateActivationInputs() {
+    return weights * layerInputs;
 }
 
 VectorXd Layer::calculateActivations(const VectorXd &inputs) {
@@ -32,24 +45,47 @@ VectorXd Layer::calculateActivations(const VectorXd &inputs) {
     return outputs;
 }
 
-void Layer::calculateDerivatives(const VectorXd &inputs){
+// Backward propagation
+
+VectorXd Layer::backPropagate(const VectorXd &topDerivatives, double alpha) {
+    VectorXd activationInputs = calculateActivationInputs();
+    VectorXd derivativesByActivationInputs = calculateDerivativesByActivationInputs(activationInputs, topDerivatives);
+    MatrixXd derivativesByWeights = derivativesByActivationInputs * layerInputs.transpose();
+    VectorXd bottomDerivatives = weights.transpose() * derivativesByActivationInputs;
+    updateWeights(weights - alpha * derivativesByWeights);
+    return bottomDerivatives;
+}
+
+VectorXd Layer::calculateDerivativesByActivationInputs(const VectorXd &activationInputs, const VectorXd &topDerivatives) {
+    VectorXd derivatives;
     switch (activationFunction) {
         case ActivationFunction::Sigmoid:
-            derivatives = sigmoidDerivatives(inputs);
+            derivatives = derivativesSigmoid(activationInputs, topDerivatives);
             break;
         case ActivationFunction::HyperbolicTangent:
-            derivatives = hyperbolicTangentDerivatives(inputs);
+            derivatives = derivativesHyperbolicTangent(activationInputs, topDerivatives);
             break;
         case ActivationFunction::SoftMax:
-            derivatives = softMaxDerivatives(inputs);
+            derivatives = derivativesSoftMax(activationInputs, topDerivatives);
             break;
     }
+    return derivatives;
 }
 
 // Weights
 
 void Layer::updateWeights(const VectorXd &newWeights) {
     weights = newWeights;
+}
+
+// Structure
+
+void Layer::setNodesNumber(int number) {
+    nodesNumber = number;
+}
+
+int Layer::getNodesNumber() const {
+    return nodesNumber;
 }
 
 // Activation function
@@ -77,16 +113,33 @@ VectorXd Layer::sigmoid(const VectorXd &inputs) {
     return inputs.unaryExpr([](double x) { return 1 / (1 + exp(x)); });
 }
 
-// Different derivatives
+// Different derivatives by activation inputs through activation functions
 
-VectorXd Layer::hyperbolicTangentDerivatives(const VectorXd &inputs){
-    return inputs.unaryExpr([](double x) { return 2 / pow((exp(x) + exp(-x)), 2); });
+VectorXd Layer::derivativesHyperbolicTangent(const VectorXd &activationInputs, const VectorXd &topDerivatives) {
+    VectorXd activationDerivatives = activationInputs.unaryExpr([](double x) { return 2 / pow((exp(x) + exp(-x)), 2); });
+    return topDerivatives.cwiseProduct(activationDerivatives);
 }
 
-VectorXd Layer::sigmoidDerivatives(const VectorXd &inputs){
-    return sigmoid(inputs).cwiseProduct(VectorXd::Ones(inputs.size()) - sigmoid(inputs));
+VectorXd Layer::derivativesSigmoid(const VectorXd &activationInputs, const VectorXd &topDerivatives) {
+    VectorXd activationDerivatives = sigmoid(activationInputs).cwiseProduct(VectorXd::Ones(activationInputs.size()) - sigmoid(activationInputs));
+    return topDerivatives.cwiseProduct(activationDerivatives);
 }
 
-VectorXd softMaxDerivatives(const VectorXd &inputs){
-
+VectorXd Layer::derivativesSoftMax(const VectorXd &activationInputs, const VectorXd &topDerivatives) {
+    VectorXd derivativesByActivationInputs(nodesNumber);
+    VectorXd layerOutputs = softMax(activationInputs);
+    for (int i = 0; i < nodesNumber; i++) {
+        double sumOfDerivativeParts = 0;
+        for (int j = 0; j < nodesNumber; j++) {
+            double activationDerivative = 0;
+            if (i == j) {
+                activationDerivative = layerOutputs[j] * (1 - layerOutputs[i]);
+            } else {
+                activationDerivative = layerOutputs[j] * (-layerOutputs[i]);
+            }
+            sumOfDerivativeParts += activationDerivative * topDerivatives[j];
+        }
+        derivativesByActivationInputs[i] = sumOfDerivativeParts;
+    }
+    return derivativesByActivationInputs;
 }

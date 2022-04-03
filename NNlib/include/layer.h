@@ -8,8 +8,7 @@
 #include <Eigen/Dense>
 #include <cmath>
 
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
+// TODO: addNewLayer() in MLP and test
 
 class Layer {
 public:
@@ -19,31 +18,37 @@ public:
         SoftMax
     };
 
-    VectorXd forwardPropagate(const VectorXd &inputs);
+    Layer(int layerInputsNumber, int nodesNumber);
 
-    void updateWeights(const VectorXd &newWeights);
+    Eigen::VectorXd forwardPropagate(const Eigen::VectorXd &bottomData);
+    Eigen::VectorXd backPropagate(const Eigen::VectorXd &topDerivatives, double alpha);
+
+    void updateWeights(const Eigen::VectorXd &newWeights);
 
     void setActivationFunction(const ActivationFunction &newActivationFunction);
     ActivationFunction getActivationFunction() const;
 
+    void setNodesNumber(int number);
+    int getNodesNumber() const;
+
 
 protected:
-    MatrixXd weights;
+    Eigen::MatrixXd weights;
     ActivationFunction activationFunction;
-    VectorXd &derivatives;
+    Eigen::VectorXd layerInputs;
+    int nodesNumber;
 
-    VectorXd calculateOutputs(const VectorXd &inputs);
-    VectorXd calculateActivations(const VectorXd &inputs);
-    void calculateDerivatives(const VectorXd &inputs);
+    Eigen::VectorXd calculateActivationInputs();
+    Eigen::VectorXd calculateActivations(const Eigen::VectorXd &inputs);
+    Eigen::VectorXd calculateDerivativesByActivationInputs(const Eigen::VectorXd &activationInputs, const Eigen::VectorXd &topDerivatives);
 
-    VectorXd hyperbolicTangent(const VectorXd &inputs);
-    VectorXd sigmoid(const VectorXd &inputs);
-    VectorXd softMax(const VectorXd &inputs);
+    Eigen::VectorXd hyperbolicTangent(const Eigen::VectorXd &inputs);
+    Eigen::VectorXd sigmoid(const Eigen::VectorXd &inputs);
+    Eigen::VectorXd softMax(const Eigen::VectorXd &inputs);
 
-    VectorXd hyperbolicTangentDerivatives(const VectorXd &inputs);
-    VectorXd sigmoidDerivatives(const VectorXd &inputs);
-    VectorXd softMaxDerivatives(const VectorXd &inputs);
-
+    Eigen::VectorXd derivativesHyperbolicTangent(const Eigen::VectorXd &activationInputs, const Eigen::VectorXd &topDerivatives);
+    Eigen::VectorXd derivativesSigmoid(const Eigen::VectorXd &activationInputs, const Eigen::VectorXd &topDerivatives);
+    Eigen::VectorXd derivativesSoftMax(const Eigen::VectorXd &activationInputs, const Eigen::VectorXd &topDerivatives);
 };
 
 #endif //NNLIB_AND_TEST_EXAMPLE_LAYER_H
