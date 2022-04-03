@@ -10,7 +10,8 @@ project("${PROJECT_NAME}")
 set(CMAKE_CXX_STANDARD 17)
 
 # Create the library
-add_library("${LIBRARY_NAME}" NNlib/src/library.cpp NNlib/include/library.h NNlib/src/layer.cpp NNlib/include/layer.h)
+add_library("${LIBRARY_NAME}" NNlib/src/library.cpp NNlib/include/library.h NNlib/src/layer.cpp NNlib/include/layer.h
+        NNlib/src/Model.cpp NNlib/include/Model.h NNlib/src/MLP.cpp NNlib/include/MLP.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 
 # Set installation prefix of Eigen3
