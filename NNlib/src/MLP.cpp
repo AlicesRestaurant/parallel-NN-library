@@ -1,12 +1,6 @@
 #include "MLP.h"
 #include "layer.h"
 
-// Initialization
-
-MLP::MLP(int numInputNodes) : numInputNodes{numInputNodes} {
-
-}
-
 // Structure
 
 void MLP::addLayer(int numNodes, Layer::ActivationFunction activationFunction) {
@@ -22,10 +16,9 @@ void MLP::addLayer(int numNodes, Layer::ActivationFunction activationFunction) {
 
 // Training
 
-void MLP::trainExample(Eigen::VectorXd features, Eigen::VectorXd labels){
+void MLP::trainExample(Eigen::VectorXd features, Eigen::VectorXd labels) {
     Eigen::VectorXd layersOutputs = forwardPass(features);
-    lossFunction.forwardPropagate(layersOutputs);
-    Eigen::VectorXd topDerivatives = lossFunction.backPropagate(labels);
+    Eigen::VectorXd topDerivatives = fullLoss.backPropagate(layersOutputs, labels);
     for (int i=layers.size()-1;i>=0;i--){
         topDerivatives = layers[i].backPropagate(topDerivatives, alpha);
     }

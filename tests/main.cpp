@@ -4,10 +4,13 @@
 
 #include "MLP.h"
 
+#include <memory>
+
 using ActivationFunction = Layer::ActivationFunction;
 
 int main() {
-    MLP mlp{2};
+    // TODO: fix design problem with loss functions
+    MLP mlp{2, FullLoss(std::shared_ptr<MSELossFunction>(new MSELossFunction()))};
     mlp.addLayer(3, ActivationFunction::Sigmoid);
     mlp.addLayer(3, ActivationFunction::HyperbolicTangent);
     mlp.printMLP();
