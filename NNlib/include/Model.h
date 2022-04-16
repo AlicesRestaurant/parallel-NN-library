@@ -10,14 +10,7 @@
 #include "layer.h"
 
 class Model {
-public:
-    Eigen::VectorXd forwardPass(Eigen::VectorXd input);
-
-    void setParameters(double alpha);
-
-protected:
-    std::vector<Layer> layers;
-    double alpha;
+    // this class will have virtual functions later probably
 };
 
 

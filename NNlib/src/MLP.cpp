@@ -1,4 +1,5 @@
 #include "MLP.h"
+#include "layer.h"
 
 // Initialization
 
@@ -43,4 +44,18 @@ void MLP::printMLP(){
         << layers[i].getWeights() << "\n"
         << "type = " << layers[i].getActivationFunctionName() << "\n";
     }
+}
+
+// copied from Model by Bohdan Mahometa
+
+Eigen::VectorXd MLP::forwardPass(Eigen::VectorXd input) {
+    Eigen::VectorXd outputOfPrevLayer = input;
+    for (int i = 0; i < layers.size(); ++i) {
+        outputOfPrevLayer = layers[i].forwardPropagate(outputOfPrevLayer);
+    }
+    return outputOfPrevLayer;
+}
+
+void MLP::setParameters(double newAlpha){
+    alpha = newAlpha;
 }
