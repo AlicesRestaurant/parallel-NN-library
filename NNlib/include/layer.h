@@ -7,6 +7,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <iostream>
 
 // TODO: addNewLayer() in MLP and test
 
@@ -18,15 +19,17 @@ public:
         SoftMax
     };
 
-    Layer(int layerInputsNumber, int nodesNumber);
+    Layer(int layerInputsNumber, int nodesNumber, ActivationFunction activationFunction);
 
     Eigen::VectorXd forwardPropagate(const Eigen::VectorXd &bottomData);
     Eigen::VectorXd backPropagate(const Eigen::VectorXd &topDerivatives, double alpha);
 
-    void updateWeights(const Eigen::VectorXd &newWeights);
+    void updateWeights(const Eigen::MatrixXd &newWeights);
+    Eigen::MatrixXd getWeights();
 
     void setActivationFunction(const ActivationFunction &newActivationFunction);
     ActivationFunction getActivationFunction() const;
+    std::string getActivationFunctionName() const;
 
     void setNodesNumber(int number);
     int getNodesNumber() const;

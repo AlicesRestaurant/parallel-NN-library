@@ -9,17 +9,16 @@ using Eigen::VectorXd;
 
 // Initialization
 
-Layer::Layer(int layerInputsNumber, int nodesNumber){
+Layer::Layer(int layerInputsNumber, int nodesNumber, ActivationFunction activationFunction) : nodesNumber{nodesNumber}, activationFunction{activationFunction} {
     weights.resize(nodesNumber, layerInputsNumber + 1);
-    this->nodesNumber = nodesNumber;
+    weights = MatrixXd::Constant(nodesNumber,layerInputsNumber + 1,1.5);
 }
 
 // Forward propagation
 
 VectorXd Layer::forwardPropagate(const VectorXd &inputs) {
     VectorXd inputsWithBias(inputs.size() + 1);
-    inputsWithBias << 1;
-    inputsWithBias << inputs;
+    inputsWithBias << 1, inputs;
     layerInputs = std::move(inputsWithBias);
     VectorXd activationInputs = calculateActivationInputs();
     return calculateActivations(activationInputs);
@@ -74,8 +73,12 @@ VectorXd Layer::calculateDerivativesByActivationInputs(const VectorXd &activatio
 
 // Weights
 
-void Layer::updateWeights(const VectorXd &newWeights) {
+void Layer::updateWeights(const MatrixXd &newWeights) {
     weights = newWeights;
+}
+
+MatrixXd Layer::getWeights() {
+    return weights;
 }
 
 // Structure
@@ -98,6 +101,17 @@ Layer::ActivationFunction Layer::getActivationFunction() const {
     return activationFunction;
 }
 
+std::string Layer::getActivationFunctionName() const {
+    switch(activationFunction) {
+        case ActivationFunction::HyperbolicTangent:
+            return "HyperbolicTangent";
+        case ActivationFunction::Sigmoid:
+            return "Sigmoid";
+        case ActivationFunction::SoftMax:
+            return "SoftMax";
+    }
+}
+
 // Different activation functions
 
 VectorXd Layer::hyperbolicTangent(const VectorXd &inputs) {
@@ -110,7 +124,7 @@ VectorXd Layer::softMax(const VectorXd &inputs) {
 }
 
 VectorXd Layer::sigmoid(const VectorXd &inputs) {
-    return inputs.unaryExpr([](double x) { return 1 / (1 + exp(x)); });
+    return inputs.unaryExpr([](double x) { return 1 / (1 + exp(-x)); });
 }
 
 // Different derivatives by activation inputs through activation functions

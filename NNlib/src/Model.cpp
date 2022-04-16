@@ -1,7 +1,4 @@
 #include "Model.h"
-
-#include <Eigen/Dense>
-
 #include "layer.h"
 
 Eigen::VectorXd Model::forwardPass(Eigen::VectorXd input) {
@@ -10,4 +7,8 @@ Eigen::VectorXd Model::forwardPass(Eigen::VectorXd input) {
         outputOfPrevLayer = layers[i].forwardPropagate(outputOfPrevLayer);
     }
     return outputOfPrevLayer;
+}
+
+void Model::setParameters(double newAlpha){
+    alpha = newAlpha;
 }

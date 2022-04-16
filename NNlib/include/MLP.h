@@ -3,9 +3,19 @@
 
 
 #include "Model.h"
+#include "layer.h"
+
+#include <iostream>
 
 class MLP : public Model {
-    MLP(int numInputNodes, std::vector<int> layersSizes); // TODO: implement it
+public:
+    MLP(int numInputNodes); // TODO: implement it
+    void addLayer(int numNodes, Layer::ActivationFunction activationFunction);
+    void printMLP();
+    void trainExample(std::vector<double> features, std::vector<double> labels);
+
+private:
+    int numInputNodes;
 };
 
 
