@@ -25,7 +25,7 @@ public:
     Eigen::VectorXd backPropagate(const Eigen::VectorXd &topDerivatives, double alpha);
 
     void updateWeights(const Eigen::MatrixXd &newWeights);
-    Eigen::MatrixXd getWeights();
+    Eigen::MatrixXd getWeights() const;
 
     void setActivationFunction(const ActivationFunction &newActivationFunction);
     ActivationFunction getActivationFunction() const;

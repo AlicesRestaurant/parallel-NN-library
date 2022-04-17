@@ -20,6 +20,7 @@ public:
     void printMLP();
     void trainExample(Eigen::VectorXd features, Eigen::VectorXd labels);
 
+    friend std::ostream& operator<<(std::ostream &os, const MLP &mlp);
 protected:
     std::vector<Layer> layers;
     double alpha;

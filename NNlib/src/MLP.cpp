@@ -8,35 +8,39 @@ void MLP::addLayer(int numNodes, Layer::ActivationFunction activationFunction) {
     if (layers.empty()) {
         layerInputsNumber = numInputNodes;
     } else {
-        layerInputsNumber = layers[layers.size() - 1].getNodesNumber();
+        layerInputsNumber = layers.back().getNodesNumber();
     }
-    Layer newLayer{layerInputsNumber, numNodes, activationFunction};
-    layers.push_back(std::move(newLayer));
+    layers.emplace_back(layerInputsNumber, numNodes, activationFunction);
 }
 
 // Training
 
 void MLP::trainExample(Eigen::VectorXd features, Eigen::VectorXd labels) {
     Eigen::VectorXd layersOutputs = forwardPass(features);
-    Eigen::VectorXd topDerivatives = fullLoss.backPropagate(layersOutputs, labels);
-    for (int i=layers.size()-1;i>=0;i--){
+    Eigen::VectorXd topDerivatives =
+            fullLoss.backPropagate(layersOutputs.transpose(), labels.transpose())
+            .transpose();
+    for (int i = layers.size() - 1; i >= 0; i--){
         topDerivatives = layers[i].backPropagate(topDerivatives, alpha);
     }
 }
 
 // Printing
 
-void MLP::printMLP(){
-    std::cout << "input nodes number = " << numInputNodes
-    << "\n" << "---------------------------" << "\n"
-    << "layers (" << layers.size() << ") :" << "\n";
-    for (int i = 0; i < layers.size(); i++){
-        std::cout << i + 1 << "\n"
-        << "---------------------------" << "\n"
-        << "weights = " << "\n"
-        << layers[i].getWeights() << "\n"
-        << "type = " << layers[i].getActivationFunctionName() << "\n";
+std::ostream& operator<<(std::ostream &os, const MLP &mlp) {
+    os << "MLP {\n\tnumInputNodes = " << mlp.numInputNodes << ",\n";
+    for (int i = 0; i < mlp.layers.size(); ++i){
+        os << "\tlayer " << i + 1 << " = layer{\n"
+            << "\t\tweights = \n";
+        Eigen::MatrixXd weights = mlp.layers[i].getWeights();
+        for (int rowIdx = 0; rowIdx < weights.rows(); ++rowIdx) {
+            os << "\t\t\t" << weights.row(rowIdx) << '\n';
+        }
+        os << "\t\tactivation function = " << mlp.layers[i].getActivationFunctionName() << "\n";
+        os << "\t}\n";
     }
+    os << "}\n";
+    return os;
 }
 
 // copied from Model by Bohdan Mahometa

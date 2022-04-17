@@ -77,7 +77,7 @@ void Layer::updateWeights(const MatrixXd &newWeights) {
     weights = newWeights;
 }
 
-MatrixXd Layer::getWeights() {
+MatrixXd Layer::getWeights() const {
     return weights;
 }
 
