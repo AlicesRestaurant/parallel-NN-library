@@ -16,7 +16,7 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer.cpp NNlib/include/layer.h
         NNlib/src/lossfunction/FullLoss.cpp NNlib/include/lossfunction/FullLoss.h
         NNlib/src/lossfunction/LossFunction.cpp NNlib/include/lossfunction/LossFunction.h
         NNlib/src/lossfunction/MSELossFunction.cpp NNlib/include/lossfunction/MSELossFunction.h
-        NNlib/src/regularization/Regularization.cpp NNlib/src/regularization/Regularization.cpp NNlib/include/regularization/Regularization.h NNlib/src/regularization/NoRegularization.cpp NNlib/include/regularization/NoRegularization.h NNlib/src/regularization/L2Regularization.cpp NNlib/include/regularization/L2Regularization.h)
+        NNlib/src/regularization/Regularization.cpp NNlib/src/regularization/Regularization.cpp NNlib/include/regularization/Regularization.h NNlib/src/regularization/NoRegularization.cpp NNlib/include/regularization/NoRegularization.h NNlib/src/regularization/L2Regularization.cpp NNlib/include/regularization/L2Regularization.h NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 
 # Set installation prefix of Eigen3

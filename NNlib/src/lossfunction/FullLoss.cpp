@@ -1,6 +1,6 @@
-#include <Eigen/Core>
-
 #include "lossfunction/FullLoss.h"
+
+#include <Eigen/Core>
 
 double FullLoss::forwardPropagate(const Eigen::MatrixXd &bottomData, const Eigen::MatrixXd &labels) {
     return lossFunctionPtr->forwardPropagate(bottomData, labels);
