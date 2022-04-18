@@ -7,7 +7,7 @@
 
 #include <Eigen/Dense>
 
-#include "layer.h"
+#include "Layer.h"
 
 class Model {
     // this class will have virtual functions later probably

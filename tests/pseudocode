@@ -1,0 +1,17 @@
+MLP {
+    enum class LossFunctionType {
+        MSE,
+        Softmax
+    }
+
+    setLossFunction(){
+        switch(LossFunctionType):
+            case (MSE):
+                lossFunction = new MSELossFunction{};
+    }
+
+    // ...
+
+private:
+    LossFunction *lossFunction;
+}

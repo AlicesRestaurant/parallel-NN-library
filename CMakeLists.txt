@@ -10,7 +10,7 @@ project("${PROJECT_NAME}")
 set(CMAKE_CXX_STANDARD 17)
 
 # Create the library
-add_library("${LIBRARY_NAME}" NNlib/src/layer.cpp NNlib/include/layer.h
+add_library("${LIBRARY_NAME}" NNlib/src/Layer.cpp NNlib/include/Layer.h
         NNlib/src/Model.cpp NNlib/include/Model.h
         NNlib/src/MLP.cpp NNlib/include/MLP.h
         NNlib/src/lossfunction/FullLoss.cpp NNlib/include/lossfunction/FullLoss.h

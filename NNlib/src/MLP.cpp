@@ -1,5 +1,5 @@
 #include "MLP.h"
-#include "layer.h"
+#include "Layer.h"
 
 // Structure
 

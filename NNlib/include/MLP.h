@@ -3,7 +3,7 @@
 
 
 #include "Model.h"
-#include "layer.h"
+#include "Layer.h"
 #include "lossfunction/FullLoss.h"
 
 #include <iostream>
