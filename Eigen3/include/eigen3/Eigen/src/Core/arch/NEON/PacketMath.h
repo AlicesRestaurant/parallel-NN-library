@@ -3251,7 +3251,7 @@ template<> EIGEN_STRONG_INLINE Packet2f pceil<Packet2f>(const Packet2f& a)
 /**
  * Computes the integer square root
  * @remarks The calculation is performed using an algorithm which iterates through each binary digit of the result
- *   and tests whether setting that digit to 1 would cause the square of the value to be greater than the argument
+ *   and examples whether setting that digit to 1 would cause the square of the value to be greater than the argument
  *   value. The algorithm is described in detail here: http://ww1.microchip.com/downloads/en/AppNotes/91040a.pdf .
  */
 template<> EIGEN_STRONG_INLINE Packet4uc psqrt(const Packet4uc& a) {

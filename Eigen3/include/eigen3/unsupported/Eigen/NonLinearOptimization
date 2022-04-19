@@ -48,29 +48,29 @@
   * coherent with Eigen. When possible, we switched to Eigen
   * implementation, such as most linear algebra (vectors, matrices, stable norms).
   *
-  * Doing so, we were very careful to check the tests we setup at the very
+  * Doing so, we were very careful to check the examples we setup at the very
   * beginning, which ensure that the same results are found.
   *
   * \section Tests Tests
   * 
-  * The tests are placed in the file unsupported/test/NonLinear.cpp.
+  * The examples are placed in the file unsupported/test/NonLinear.cpp.
   * 
-  * There are two kinds of tests : those that come from examples bundled with cminpack.
+  * There are two kinds of examples : those that come from examples bundled with cminpack.
   * They guaranty we get the same results as the original algorithms (value for 'x',
   * for the number of evaluations of the function, and for the number of evaluations
   * of the Jacobian if ever).
   * 
-  * Other tests were added by myself at the very beginning of the 
+  * Other examples were added by myself at the very beginning of the
   * process and check the results for Levenberg-Marquardt using the reference data 
   * on http://www.itl.nist.gov/div898/strd/nls/nls_main.shtml. Since then i've 
   * carefully checked that the same results were obtained when modifying the
   * code. Please note that we do not always get the exact same decimals as they do,
-  * but this is ok : they use 128bits float, and we do the tests using the C type 'double',
+  * but this is ok : they use 128bits float, and we do the examples using the C type 'double',
   * which is 64 bits on most platforms (x86 and amd64, at least).
-  * I've performed those tests on several other implementations of Levenberg-Marquardt, and
+  * I've performed those examples on several other implementations of Levenberg-Marquardt, and
   * (c)minpack performs VERY well compared to those, both in accuracy and speed.
   * 
-  * The documentation for running the tests is on the wiki
+  * The documentation for running the examples is on the wiki
   * http://eigen.tuxfamily.org/index.php?title=Tests
   * 
   * \section API API: overview of methods

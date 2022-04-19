@@ -151,7 +151,7 @@ class RunQueue {
   // Can be called by any thread at any time.
   unsigned Size() const { return SizeOrNotEmpty<true>(); }
 
-  // Empty tests whether container is empty.
+  // Empty examples whether container is empty.
   // Can be called by any thread at any time.
   bool Empty() const { return SizeOrNotEmpty<false>() == 0; }
 

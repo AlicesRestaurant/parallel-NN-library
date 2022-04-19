@@ -50,7 +50,7 @@ void dogleg(
     if (qnorm <= delta)
         return;
 
-    // TODO : this path is not tested by Eigen unit tests
+    // TODO : this path is not tested by Eigen unit examples
 
     /* the gauss-newton direction is not acceptable. */
     /* next, calculate the scaled gradient direction. */
@@ -72,7 +72,7 @@ void dogleg(
     /* calculate the point along the scaled gradient */
     /* at which the quadratic is minimized. */
     wa1.array() /= (diag*gnorm).array();
-    // TODO : once unit tests cover this part,:
+    // TODO : once unit examples cover this part,:
     // wa2 = qrfac.template triangularView<Upper>() * wa1;
     for (j = 0; j < n; ++j) {
         sum = 0.;

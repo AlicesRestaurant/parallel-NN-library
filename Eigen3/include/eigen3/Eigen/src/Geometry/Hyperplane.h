@@ -192,7 +192,7 @@ public:
   {
     EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(VectorType, 2)
     Scalar det = coeffs().coeff(0) * other.coeffs().coeff(1) - coeffs().coeff(1) * other.coeffs().coeff(0);
-    // since the line equations ax+by=c are normalized with a^2+b^2=1, the following tests
+    // since the line equations ax+by=c are normalized with a^2+b^2=1, the following examples
     // whether the two lines are approximately parallel.
     if(internal::isMuchSmallerThan(det, Scalar(1)))
     {   // special case where the two lines are approximately parallel. Pick any point on the first line.

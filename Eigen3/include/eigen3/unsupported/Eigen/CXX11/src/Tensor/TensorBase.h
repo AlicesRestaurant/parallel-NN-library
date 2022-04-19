@@ -512,7 +512,7 @@ class TensorBase<Derived, ReadOnlyAccessors>
       return binaryExpr(other.derived(), internal::scalar_boolean_xor_op());
     }
 
-    // Comparisons and tests.
+    // Comparisons and examples.
     template<typename OtherDerived> EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
     const TensorCwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT>, const Derived, const OtherDerived>
     operator<(const OtherDerived& other) const {
@@ -546,7 +546,7 @@ class TensorBase<Derived, ReadOnlyAccessors>
       return binaryExpr(other.derived(), internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_NEQ>());
     }
 
-    // comparisons and tests for Scalars
+    // comparisons and examples for Scalars
     EIGEN_DEVICE_FUNC
     EIGEN_STRONG_INLINE const TensorCwiseBinaryOp<internal::scalar_cmp_op<Scalar, Scalar, internal::cmp_LT>, const Derived, const TensorCwiseNullaryOp<internal::scalar_constant_op<Scalar>, const Derived> >
     operator<(Scalar threshold) const {

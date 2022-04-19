@@ -189,7 +189,7 @@ void evaluateProductBlockingSizesHeuristic(Index& k, Index& m, Index& n, Index n
     }
   }
   else {
-    // In unit tests we do not want to use extra large matrices,
+    // In unit examples we do not want to use extra large matrices,
     // so we reduce the cache size to check the blocking strategy is not flawed
 #ifdef EIGEN_DEBUG_SMALL_PRODUCT_BLOCKS
     l1 = 9*1024;

@@ -27,5 +27,5 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 target_link_libraries("${LIBRARY_NAME}" Eigen3::Eigen)
 
 # Create test example and link with our library
-add_executable("${EXECUTABLE_NAME}" NNlib/include/MLP.h tests/main.cpp)
+add_executable("${EXECUTABLE_NAME}" NNlib/include/MLP.h examples/main.cpp examples/XOR.cpp)
 target_link_libraries("${EXECUTABLE_NAME}" "${LIBRARY_NAME}")

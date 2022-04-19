@@ -154,7 +154,7 @@ LevenbergMarquardt<FunctorType>::minimizeOneStep(FVectorType  &x)
         ++m_iter;
     }
 
-    /* tests for convergence. */
+    /* examples for convergence. */
     if (abs(actred) <= m_ftol && prered <= m_ftol && Scalar(.5) * ratio <= 1. && m_delta <= m_xtol * xnorm)
     {
        m_info = Success;
@@ -171,7 +171,7 @@ LevenbergMarquardt<FunctorType>::minimizeOneStep(FVectorType  &x)
       return LevenbergMarquardtSpace::RelativeErrorTooSmall;
     }
 
-    /* tests for termination and stringent tolerances. */
+    /* examples for termination and stringent tolerances. */
     if (m_nfev >= m_maxfev) 
     {
       m_info = NoConvergence;

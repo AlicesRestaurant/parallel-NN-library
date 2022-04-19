@@ -309,7 +309,7 @@ HybridNonLinearSolver<FunctorType,Scalar>::solveOneStep(FVectorType  &x)
         if (delta <= parameters.xtol * xnorm || fnorm == 0.)
             return HybridNonLinearSolverSpace::RelativeErrorTooSmall;
 
-        /* tests for termination and stringent tolerances. */
+        /* examples for termination and stringent tolerances. */
         if (nfev >= parameters.maxfev)
             return HybridNonLinearSolverSpace::TooManyFunctionEvaluation;
         if (Scalar(.1) * (std::max)(Scalar(.1) * delta, pnorm) <= NumTraits<Scalar>::epsilon() * xnorm)
@@ -552,7 +552,7 @@ HybridNonLinearSolver<FunctorType,Scalar>::solveNumericalDiffOneStep(FVectorType
         if (delta <= parameters.xtol * xnorm || fnorm == 0.)
             return HybridNonLinearSolverSpace::RelativeErrorTooSmall;
 
-        /* tests for termination and stringent tolerances. */
+        /* examples for termination and stringent tolerances. */
         if (nfev >= parameters.maxfev)
             return HybridNonLinearSolverSpace::TooManyFunctionEvaluation;
         if (Scalar(.1) * (std::max)(Scalar(.1) * delta, pnorm) <= NumTraits<Scalar>::epsilon() * xnorm)

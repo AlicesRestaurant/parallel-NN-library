@@ -337,7 +337,7 @@ LevenbergMarquardt<FunctorType,Scalar>::minimizeOneStep(FVectorType  &x)
             ++iter;
         }
 
-        /* tests for convergence. */
+        /* examples for convergence. */
         if (abs(actred) <= parameters.ftol && prered <= parameters.ftol && Scalar(.5) * ratio <= 1. && delta <= parameters.xtol * xnorm)
             return LevenbergMarquardtSpace::RelativeErrorAndReductionTooSmall;
         if (abs(actred) <= parameters.ftol && prered <= parameters.ftol && Scalar(.5) * ratio <= 1.)
@@ -345,7 +345,7 @@ LevenbergMarquardt<FunctorType,Scalar>::minimizeOneStep(FVectorType  &x)
         if (delta <= parameters.xtol * xnorm)
             return LevenbergMarquardtSpace::RelativeErrorTooSmall;
 
-        /* tests for termination and stringent tolerances. */
+        /* examples for termination and stringent tolerances. */
         if (nfev >= parameters.maxfev)
             return LevenbergMarquardtSpace::TooManyFunctionEvaluation;
         if (abs(actred) <= NumTraits<Scalar>::epsilon() && prered <= NumTraits<Scalar>::epsilon() && Scalar(.5) * ratio <= 1.)
@@ -587,7 +587,7 @@ LevenbergMarquardt<FunctorType,Scalar>::minimizeOptimumStorageOneStep(FVectorTyp
             ++iter;
         }
 
-        /* tests for convergence. */
+        /* examples for convergence. */
         if (abs(actred) <= parameters.ftol && prered <= parameters.ftol && Scalar(.5) * ratio <= 1. && delta <= parameters.xtol * xnorm)
             return LevenbergMarquardtSpace::RelativeErrorAndReductionTooSmall;
         if (abs(actred) <= parameters.ftol && prered <= parameters.ftol && Scalar(.5) * ratio <= 1.)
@@ -595,7 +595,7 @@ LevenbergMarquardt<FunctorType,Scalar>::minimizeOptimumStorageOneStep(FVectorTyp
         if (delta <= parameters.xtol * xnorm)
             return LevenbergMarquardtSpace::RelativeErrorTooSmall;
 
-        /* tests for termination and stringent tolerances. */
+        /* examples for termination and stringent tolerances. */
         if (nfev >= parameters.maxfev)
             return LevenbergMarquardtSpace::TooManyFunctionEvaluation;
         if (abs(actred) <= NumTraits<Scalar>::epsilon() && prered <= NumTraits<Scalar>::epsilon() && Scalar(.5) * ratio <= 1.)
