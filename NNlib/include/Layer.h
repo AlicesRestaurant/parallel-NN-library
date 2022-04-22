@@ -21,9 +21,9 @@ public:
 
     Eigen::MatrixXd forwardPropagate(const Eigen::MatrixXd &bottomData);
     // Returns matrix of derivatives with respect to layer inputs and
-    // sets vector of matrices of derivatives with respect to weights
+    // mean of derivatives with respect to weights
     // for use in Optimizer
-    Eigen::MatrixXd backPropagate(const Eigen::MatrixXd &topDerivatives);
+    std::tuple<Eigen::MatrixXd, Eigen::MatrixXd> backPropagate(const Eigen::MatrixXd &topDerivatives);
 
     void updateWeights(const Eigen::MatrixXd &newWeights);
     Eigen::MatrixXd getWeights() const;

@@ -4,8 +4,12 @@
 
 #include "Layer.h"
 
+#include <tuple>
+
 using Eigen::VectorXd;
 using Eigen::MatrixXd;
+
+using matrixTuple = std::tuple<MatrixXd, MatrixXd>;
 
 // Initialization
 
@@ -48,17 +52,17 @@ MatrixXd Layer::calculateActivations(const MatrixXd &inputs) {
 
 // Backward propagation
 
-// TODO: implement returning derivatives wrt weights
-MatrixXd Layer::backPropagate(const MatrixXd &topDerivatives) {
+matrixTuple Layer::backPropagate(const MatrixXd &topDerivatives) {
     MatrixXd activationInputs = calculateActivationInputs();
     MatrixXd derivativesByActivationInputs = calculateDerivativesByActivationInputs(activationInputs, topDerivatives);
     int examplesNum = layerInputs.cols();
-    std::vector<MatrixXd> batchDerivativesByWeights(examplesNum);
+    MatrixXd meanBatchDerivativesByWeights;
     for (int i = 0; i < examplesNum; i++){
-        batchDerivativesByWeights[i] = derivativesByActivationInputs.col(i) * layerInputs.col(i).transpose();
+        meanBatchDerivativesByWeights += derivativesByActivationInputs.col(i) * layerInputs.col(i).transpose();
     }
+    meanBatchDerivativesByWeights = meanBatchDerivativesByWeights / examplesNum;
     MatrixXd bottomDerivatives = weights.transpose() * derivativesByActivationInputs;
-    return bottomDerivatives;
+    return std::make_tuple(bottomDerivatives, meanBatchDerivativesByWeights);
 }
 
 MatrixXd
