@@ -28,3 +28,19 @@ target_link_libraries("${LIBRARY_NAME}" Eigen3::Eigen)
 # Create test example and link with our library
 add_executable("${EXECUTABLE_NAME}" NNlib/include/MLP.h examples/main.cpp examples/XOR.cpp)
 target_link_libraries("${EXECUTABLE_NAME}" "${LIBRARY_NAME}")
+
+# Add testing executable
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
+    add_subdirectory(googletest)
+    add_executable(
+            NNlib_test
+            tests/test.cpp
+    )
+    target_link_libraries(
+            NNlib_test
+            gtest_main
+    )
+else()
+    message(WARNING "Clone Gtest into project's root directory to be able to run Google tests:\n\
+git clone https://github.com/google/googletest.git")
+endif()

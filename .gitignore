@@ -1,3 +1,4 @@
 helper
 .idea/
 cmake-build-debug/
+googletest/
