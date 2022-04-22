@@ -10,10 +10,6 @@ Layer::Layer(int nodesNumber, LayerType layerType) : nodesNumber{nodesNumber}, l
 
 // Structure
 
-void Layer::setNodesNumber(int number) {
-    nodesNumber = number;
-}
-
 int Layer::getNodesNumber() const {
     return nodesNumber;
 }

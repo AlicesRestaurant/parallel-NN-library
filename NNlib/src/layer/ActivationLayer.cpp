@@ -4,6 +4,8 @@
 
 #include "layer/ActivationLayer.h"
 
+#include "layer/Layer.h"
+
 #include <Eigen/Dense>
 
 using Eigen::VectorXd;
@@ -11,7 +13,8 @@ using Eigen::MatrixXd;
 
 // Initialization
 
-ActivationLayer::ActivationLayer(int nodesNumber) : Layer(nodesNumber) {}
+ActivationLayer::ActivationLayer(int nodesNumber) :
+Layer(nodesNumber, Layer::LayerType::Activation) {}
 
 
 // Forward propagation

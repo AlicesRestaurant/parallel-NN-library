@@ -9,6 +9,8 @@
 
 class ActivationLayer : public Layer {
 public:
+    ActivationLayer(int nodesNumber);
+
     Eigen::MatrixXd forwardPropagate(const Eigen::MatrixXd &bottomData) override;
 
     Eigen::MatrixXd calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) override;

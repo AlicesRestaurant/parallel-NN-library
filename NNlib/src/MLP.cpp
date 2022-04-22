@@ -3,15 +3,15 @@
 
 // Structure
 
-void MLP::addLayer(int numNodes, Layer::ActivationFunction activationFunction) {
-    int layerInputsNumber;
-    if (layers.empty()) {
-        layerInputsNumber = numInputNodes;
-    } else {
-        layerInputsNumber = layers.back().getNodesNumber();
-    }
-    layers.emplace_back(layerInputsNumber, numNodes, activationFunction);
-}
+//void MLP::addLayer(int numNodes, Layer::ActivationFunction activationFunction) {
+//    int layerInputsNumber;
+//    if (layers.empty()) {
+//        layerInputsNumber = numInputNodes;
+//    } else {
+//        layerInputsNumber = layers.back().getNodesNumber();
+//    }
+//    layers.emplace_back(layerInputsNumber, numNodes, activationFunction);
+//}
 
 // Training
 
@@ -21,7 +21,7 @@ void MLP::trainExample(Eigen::VectorXd features, Eigen::VectorXd labels) {
             lossFunctionPtr->backPropagate(layersOutputs.transpose(), labels.transpose())
             .transpose();
     for (int i = layers.size() - 1; i >= 0; i--){
-        topDerivatives = layers[i].backPropagate(topDerivatives, alpha);
+        topDerivatives = layers[i].calculateGradientsWrtInputs(topDerivatives);
     }
 }
 
@@ -36,7 +36,6 @@ std::ostream& operator<<(std::ostream &os, const MLP &mlp) {
         for (int rowIdx = 0; rowIdx < weights.rows(); ++rowIdx) {
             os << "\t\t\t" << weights.row(rowIdx) << '\n';
         }
-        os << "\t\tactivation function = " << mlp.layers[i].getActivationFunctionName() << "\n";
         os << "\t}\n";
     }
     os << "}\n";

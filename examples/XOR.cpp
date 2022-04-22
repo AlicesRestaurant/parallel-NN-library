@@ -8,9 +8,9 @@
 
 using DynMatrix = Eigen::MatrixXd;
 using DynVector = Eigen::VectorXd;
-using ActivationFunction = Layer::ActivationFunction;
 
 int main() {
+#if 0
     //create batch
     DynMatrix features(2, 4);
     features << 0, 0, 1, 1,
@@ -36,6 +36,6 @@ int main() {
 
     //test
     std::cout << mlp.forwardPass(features);
-
+#endif
     return 0;
 }

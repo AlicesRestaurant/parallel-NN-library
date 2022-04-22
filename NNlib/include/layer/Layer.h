@@ -25,15 +25,14 @@ public:
     virtual void updateWeights(const Eigen::MatrixXd &newWeights) = 0;
     virtual Eigen::MatrixXd getWeights() const = 0;
 
-    void setNodesNumber(int number);
     int getNodesNumber() const;
 
     LayerType getLayerType() const;
 
 protected:
     Eigen::MatrixXd layerInputs;
-    int nodesNumber;
-    LayerType layerType;
+    const int nodesNumber;
+    const LayerType layerType;
 };
 
 #endif //NNLIB_AND_TEST_EXAMPLE_LAYER_H

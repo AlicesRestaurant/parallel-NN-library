@@ -1,12 +1,12 @@
 #ifndef NNLIB_AND_TEST_EXAMPLE_MLP_H
 #define NNLIB_AND_TEST_EXAMPLE_MLP_H
 
-#include <memory>
-#include <iostream>
-
 #include "Model.h"
 #include "layer/Layer.h"
 #include "lossfunction/LossFunction.h"
+
+#include <memory>
+#include <iostream>
 
 class MLP : public Model {
 public:
@@ -17,7 +17,7 @@ public:
     Eigen::VectorXd forwardPass(Eigen::VectorXd input);
     void setParameters(double alpha);
 
-    void addLayer(int numNodes, Layer::ActivationFunction activationFunction);
+//    void addLayer(int numNodes, Layer::ActivationFunction activationFunction);
     void printMLP();
     void trainExample(Eigen::VectorXd features, Eigen::VectorXd labels);
 
