@@ -10,12 +10,20 @@ project("${PROJECT_NAME}")
 set(CMAKE_CXX_STANDARD 17)
 
 # Create the library
-add_library("${LIBRARY_NAME}" NNlib/src/Layer.cpp NNlib/include/Layer.h
+add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Layer.h
         NNlib/src/Model.cpp NNlib/include/Model.h
         NNlib/src/MLP.cpp NNlib/include/MLP.h
         NNlib/src/lossfunction/LossFunction.cpp NNlib/include/lossfunction/LossFunction.h
         NNlib/src/lossfunction/MSELossFunction.cpp NNlib/include/lossfunction/MSELossFunction.h
-        NNlib/src/regularization/Regularization.cpp NNlib/src/regularization/Regularization.cpp NNlib/include/regularization/Regularization.h NNlib/src/regularization/NoRegularization.cpp NNlib/include/regularization/NoRegularization.h NNlib/src/regularization/L2Regularization.cpp NNlib/include/regularization/L2Regularization.h NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h)
+        NNlib/src/regularization/Regularization.cpp NNlib/src/regularization/Regularization.cpp
+        NNlib/include/regularization/Regularization.h NNlib/src/regularization/NoRegularization.cpp
+        NNlib/include/regularization/NoRegularization.h NNlib/src/regularization/L2Regularization.cpp
+        NNlib/include/regularization/L2Regularization.h NNlib/src/lossfunction/SoftMaxLossFunction.cpp
+        NNlib/include/lossfunction/SoftMaxLossFunction.h NNlib/include/layer/FCLayer.h NNlib/src/layer/FCLayer.cpp
+        NNlib/include/layer/ActivationLayer.h NNlib/src/layer/ActivationLayer.cpp NNlib/src/layer/HTActivationLayer.cpp
+        NNlib/include/layer/HTActivationLayer.h
+        NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
+        NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 
 # Set installation prefix of Eigen3

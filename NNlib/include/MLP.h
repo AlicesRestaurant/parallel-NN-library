@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "Model.h"
-#include "Layer.h"
+#include "layer/Layer.h"
 #include "lossfunction/LossFunction.h"
 
 class MLP : public Model {
