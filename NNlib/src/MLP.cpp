@@ -18,7 +18,7 @@ void MLP::addLayer(int numNodes, Layer::ActivationFunction activationFunction) {
 void MLP::trainExample(Eigen::VectorXd features, Eigen::VectorXd labels) {
     Eigen::VectorXd layersOutputs = forwardPass(features);
     Eigen::VectorXd topDerivatives =
-            fullLoss.backPropagate(layersOutputs.transpose(), labels.transpose())
+            lossFunctionPtr->backPropagate(layersOutputs.transpose(), labels.transpose())
             .transpose();
     for (int i = layers.size() - 1; i >= 0; i--){
         topDerivatives = layers[i].backPropagate(topDerivatives, alpha);

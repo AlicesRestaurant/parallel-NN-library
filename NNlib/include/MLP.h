@@ -1,16 +1,17 @@
 #ifndef NNLIB_AND_TEST_EXAMPLE_MLP_H
 #define NNLIB_AND_TEST_EXAMPLE_MLP_H
 
+#include <memory>
+#include <iostream>
 
 #include "Model.h"
-#include "Layer.h"
-#include "lossfunction/FullLoss.h"
-
-#include <iostream>
+#include "layer.h"
+#include "lossfunction/LossFunction.h"
 
 class MLP : public Model {
 public:
-    MLP(int numInputNodes, FullLoss fullLoss) : numInputNodes{numInputNodes}, fullLoss{fullLoss}
+    MLP(int numInputNodes, const std::shared_ptr<LossFunction>& lossFunctionPtr) : numInputNodes{numInputNodes},
+                                                                            lossFunctionPtr{lossFunctionPtr}
     {}
 
     Eigen::VectorXd forwardPass(Eigen::VectorXd input);
@@ -25,7 +26,7 @@ protected:
     std::vector<Layer> layers;
     double alpha;
 
-    FullLoss fullLoss;
+    std::shared_ptr<LossFunction> lossFunctionPtr;
 
     int numInputNodes;
 };
