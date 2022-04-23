@@ -4,18 +4,18 @@
 
 #include <memory>
 
-#include "MLP.h"
+#include "Model.h"
 #include "lossfunction/MSELossFunction.h"
 
 
 int main() {
-    MLP mlp{2, std::shared_ptr<MSELossFunction>(new MSELossFunction())};
+    Model model{2, std::shared_ptr<MSELossFunction>(new MSELossFunction())};
 //    mlp.addLayer(3, ActivationFunction::Sigmoid);
 //    mlp.addLayer(3, ActivationFunction::HyperbolicTangent);
-    std::cout << mlp;
+    std::cout << model;
     Eigen::VectorXd ins(2);
     ins << 1, 2;
-    Eigen::VectorXd res = mlp.forwardPass(ins);
+    Eigen::VectorXd res = model.forwardPass(ins);
     std::cout << res;
 
     return 0;

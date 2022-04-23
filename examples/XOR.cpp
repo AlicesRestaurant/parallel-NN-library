@@ -2,7 +2,7 @@
 // Created by vityha on 19.04.22.
 //
 
-#include "MLP.h"
+#include "Model.h"
 
 #include <Eigen/Dense>
 
@@ -21,21 +21,21 @@ int main() {
     //create model
     double alpha = 0.2;
     // TODO: initialize mlp
-    MLP mlp;
-    mlp.setParameters(alpha);
-    mlp.addLayer(2, ActivationFunction::Sigmoid);
-    mlp.addLayer(1, ActivationFunction::Sigmoid);
+    Model model;
+    model.setParameters(alpha);
+    model.addLayer(2, ActivationFunction::Sigmoid);
+    model.addLayer(1, ActivationFunction::Sigmoid);
 
     //train model
     for (int i = 0; i < 10; i++) {
-        mlp.trainBatch(features, labels);
+        model.trainBatch(features, labels);
     }
 
     //print info
-    std::cout << mlp;
+    std::cout << model;
 
     //test
-    std::cout << mlp.forwardPass(features);
+    std::cout << model.forwardPass(features);
 #endif
     return 0;
 }

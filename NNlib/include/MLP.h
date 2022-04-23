@@ -2,33 +2,9 @@
 #define NNLIB_AND_TEST_EXAMPLE_MLP_H
 
 #include "Model.h"
-#include "layer/Layer.h"
-#include "lossfunction/LossFunction.h"
-
-#include <memory>
-#include <iostream>
 
 class MLP : public Model {
-public:
-    MLP(int numInputNodes, const std::shared_ptr<LossFunction>& lossFunctionPtr) : numInputNodes{numInputNodes},
-                                                                            lossFunctionPtr{lossFunctionPtr}
-    {}
 
-    Eigen::VectorXd forwardPass(Eigen::VectorXd input);
-    void setParameters(double alpha);
-
-//    void addLayer(int numNodes, Layer::ActivationFunction activationFunction);
-    void printMLP();
-    void trainExample(Eigen::VectorXd features, Eigen::VectorXd labels);
-
-    friend std::ostream& operator<<(std::ostream &os, const MLP &mlp);
-protected:
-    std::vector<Layer> layers;
-    double alpha;
-
-    std::shared_ptr<LossFunction> lossFunctionPtr;
-
-    int numInputNodes;
 };
 
 
