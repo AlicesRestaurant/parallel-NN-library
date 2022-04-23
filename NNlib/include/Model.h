@@ -17,13 +17,14 @@ public:
                                                                                    lossFunctionPtr{lossFunctionPtr}
     {}
 
-    Eigen::VectorXd forwardPass(Eigen::VectorXd input);
+    Eigen::MatrixXd forwardPass(Eigen::MatrixXd input);
 
     template<class LayerType, class... Args>
     void addLayer(Args... args) {
         layerPtrs.push_back(std::make_shared<LayerType>(args...));
     }
-    void trainExample(Eigen::VectorXd features, Eigen::VectorXd labels);
+
+    void trainExample(Eigen::VectorXd features, Eigen::VectorXd label, double alpha);
     void trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double alpha);
 
     friend std::ostream& operator<<(std::ostream &os, const Model &mlp);

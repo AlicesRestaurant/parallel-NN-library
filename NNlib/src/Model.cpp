@@ -3,23 +3,24 @@
 
 // Training
 
-void Model::trainExample(Eigen::VectorXd features, Eigen::VectorXd labels) {
-    Eigen::VectorXd layersOutputs = forwardPass(features);
-    Eigen::VectorXd topDerivatives =
-            lossFunctionPtr->backPropagate(layersOutputs, labels);
-    for (int i = layerPtrs.size() - 1; i >= 0; i--){
-        topDerivatives = layerPtrs[i]->calculateGradientsWrtInputs(topDerivatives);
-    }
+void Model::trainExample(Eigen::VectorXd features, Eigen::VectorXd label, double alpha) {
+    Model::trainBatch(features, label, alpha);
 }
 
 void Model::trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double alpha) {
-    Eigen::VectorXd layersOutputs = forwardPass(features);
-    Eigen::VectorXd topDerivatives =
+    Eigen::MatrixXd layersOutputs = forwardPass(features);
+    Eigen::MatrixXd topDerivatives =
             lossFunctionPtr->backPropagate(layersOutputs, labels);
-    layerPtrs.back()->updateWeights(layerPtrs.back()->getWeights() - alpha * layerPtrs.back()->calculateGradientsWrtWeights(topDerivatives));
+    if (layerPtrs.back()->getLayerType() == Layer::LayerType::FC) {
+        layerPtrs.back()->updateWeights(layerPtrs.back()->getWeights() -
+                                        alpha * layerPtrs.back()->calculateGradientsWrtWeights(topDerivatives));
+    }
     for (int i = layerPtrs.size() - 1; i > 0; --i) {
         topDerivatives = layerPtrs[i]->calculateGradientsWrtInputs(topDerivatives);
-        layerPtrs.back()->updateWeights(layerPtrs[i-1]->getWeights() - alpha * layerPtrs[i-1]->calculateGradientsWrtWeights(topDerivatives));
+        if (layerPtrs[i - 1]->getLayerType() == Layer::LayerType::FC) {
+            layerPtrs[i - 1]->updateWeights(layerPtrs[i - 1]->getWeights() -
+                                            alpha * layerPtrs[i - 1]->calculateGradientsWrtWeights(topDerivatives));
+        }
     }
 }
 
@@ -40,8 +41,8 @@ std::ostream& operator<<(std::ostream &os, const Model &model) {
     return os;
 }
 
-Eigen::VectorXd Model::forwardPass(Eigen::VectorXd input) {
-    Eigen::VectorXd outputOfPrevLayer = input;
+Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
+    Eigen::MatrixXd outputOfPrevLayer = input;
     for (int i = 0; i < layerPtrs.size(); ++i) {
         outputOfPrevLayer = layerPtrs[i]->forwardPropagate(outputOfPrevLayer);
     }

@@ -41,5 +41,6 @@ void ActivationLayer::updateWeights(const MatrixXd &newWeights) {
 }
 
 MatrixXd ActivationLayer::getWeights() const {
+    return {};
 }
 
