@@ -23,7 +23,7 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
         NNlib/include/layer/ActivationLayer.h NNlib/src/layer/ActivationLayer.cpp NNlib/src/layer/HTActivationLayer.cpp
         NNlib/include/layer/HTActivationLayer.h
         NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
-        NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h)
+        NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 
 # Set installation prefix of Eigen3
