@@ -8,6 +8,8 @@
 #include "layer/ActivationLayer.h"
 
 class SMActivationLayer : public ActivationLayer {
+public:
+    SMActivationLayer(int numNodes): ActivationLayer{numNodes} {}
 protected:
     Eigen::MatrixXd calculateActivations(const Eigen::MatrixXd &inputs) override;
 

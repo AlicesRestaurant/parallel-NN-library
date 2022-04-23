@@ -8,11 +8,14 @@
 
 #include "layer/ActivationLayer.h"
 
+#include <Eigen/Dense>
+
 class SigmoidActivationLayer : public ActivationLayer {
+public:
+    SigmoidActivationLayer(int numNodes): ActivationLayer{numNodes} {}
 protected:
     Eigen::MatrixXd calculateActivations(const Eigen::MatrixXd &inputs) override;
-
-    Eigen::MatrixXd calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) override;
+    Eigen::MatrixXd calculateDerivatives(const Eigen::MatrixXd &topDerivatives) override;
 };
 
 

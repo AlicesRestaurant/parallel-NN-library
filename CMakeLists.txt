@@ -34,7 +34,7 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 target_link_libraries("${LIBRARY_NAME}" Eigen3::Eigen)
 
 # Create test example and link with our library
-add_executable("${EXECUTABLE_NAME}" examples/main.cpp)
+add_executable("${EXECUTABLE_NAME}" examples/XOR.cpp)
 target_link_libraries("${EXECUTABLE_NAME}" "${LIBRARY_NAME}")
 
 # Add testing executable
@@ -48,6 +48,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
             NNlib_test
             gtest_main
     )
+    target_link_libraries(NNlib_test ${LIBRARY_NAME})
 else()
     message(WARNING "Clone Gtest into project's root directory to be able to run Google tests:\n\
 git clone https://github.com/google/googletest.git")

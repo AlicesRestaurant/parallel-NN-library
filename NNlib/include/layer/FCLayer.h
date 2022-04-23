@@ -13,12 +13,12 @@
 
 class FCLayer : public Layer {
 public:
-    FCLayer(int nodesNumber, int layerInputsNumber, Layer::LayerType layerType);
+    FCLayer(int nodesNumber, int layerInputsNumber);
 
     Eigen::MatrixXd forwardPropagate(const Eigen::MatrixXd &bottomData) override;
 
     Eigen::MatrixXd calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) override;
-    virtual Eigen::MatrixXd calculateGradientsWrtWeights(const Eigen::MatrixXd &topDerivatives) override;
+    Eigen::MatrixXd calculateGradientsWrtWeights(const Eigen::MatrixXd &topDerivatives) override;
 
     void updateWeights(const Eigen::MatrixXd &newWeights) override;
     Eigen::MatrixXd getWeights() const override;

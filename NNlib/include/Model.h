@@ -19,12 +19,16 @@ public:
 
     Eigen::VectorXd forwardPass(Eigen::VectorXd input);
 
-//    void addLayer(int numNodes, Layer::ActivationFunction activationFunction);
+    template<class LayerType, class... Args>
+    void addLayer(Args... args) {
+        layerPtrs.push_back(std::make_shared<LayerType>(args...));
+    }
     void trainExample(Eigen::VectorXd features, Eigen::VectorXd labels);
+    void trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double alpha);
 
     friend std::ostream& operator<<(std::ostream &os, const Model &mlp);
 protected:
-    std::vector<Layer> layers;
+    std::vector<std::shared_ptr<Layer>> layerPtrs;
 
     std::shared_ptr<LossFunction> lossFunctionPtr;
 

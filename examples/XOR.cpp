@@ -2,33 +2,35 @@
 // Created by vityha on 19.04.22.
 //
 
-#include "Model.h"
-
+#include <Model.h>
+#include <lossfunction/MSELossFunction.h>
+#include <layer/FCLayer.h>
+#include <layer/SigmoidActivationLayer.h>
 #include <Eigen/Dense>
 
 using DynMatrix = Eigen::MatrixXd;
 using DynVector = Eigen::VectorXd;
 
 int main() {
-#if 0
     //create batch
     DynMatrix features(2, 4);
     features << 0, 0, 1, 1,
             0, 1, 0, 1;
-    DynVector labels;
+    DynVector labels(4);
     labels << 0, 1, 1, 0;
 
     //create model
-    double alpha = 0.2;
+    double alpha = 0.1;
     // TODO: initialize mlp
-    Model model;
-    model.setParameters(alpha);
-    model.addLayer(2, ActivationFunction::Sigmoid);
-    model.addLayer(1, ActivationFunction::Sigmoid);
+    Model model{2, std::make_shared<MSELossFunction>()};
+    model.addLayer<FCLayer>(2, 2);
+    model.addLayer<SigmoidActivationLayer>(2);
+    model.addLayer<FCLayer>(2, 1);
+    model.addLayer<SigmoidActivationLayer>(1);
 
     //train model
     for (int i = 0; i < 10; i++) {
-        model.trainBatch(features, labels);
+        model.trainBatch(features, labels.transpose(), alpha);
     }
 
     //print info
@@ -36,6 +38,6 @@ int main() {
 
     //test
     std::cout << model.forwardPass(features);
-#endif
+
     return 0;
 }

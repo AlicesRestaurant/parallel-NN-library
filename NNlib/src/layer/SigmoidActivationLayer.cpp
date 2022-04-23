@@ -13,7 +13,7 @@ Eigen::MatrixXd SigmoidActivationLayer::calculateActivations(const Eigen::Matrix
     return inputs.unaryExpr([](double x) { return 1 / (1 + exp(-x)); });
 }
 
-Eigen::MatrixXd SigmoidActivationLayer::calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) {
+Eigen::MatrixXd SigmoidActivationLayer::calculateDerivatives(const Eigen::MatrixXd &topDerivatives) {
     MatrixXd activationDerivatives = calculateActivations(layerInputs).cwiseProduct(
             MatrixXd::Ones(layerInputs.rows(), layerInputs.cols()) - calculateActivations(layerInputs));
     return topDerivatives.cwiseProduct(activationDerivatives);
