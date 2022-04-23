@@ -1,6 +1,21 @@
 #include "Model.h"
 #include "layer/Layer.h"
 
+// Forward
+
+Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
+    Eigen::MatrixXd outputOfPrevLayer = input;
+    for (int i = 0; i < layerPtrs.size(); ++i) {
+        outputOfPrevLayer = layerPtrs[i]->forwardPropagate(outputOfPrevLayer);
+    }
+    return outputOfPrevLayer;
+}
+
+double Model::calcLoss(Eigen::MatrixXd input, const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths) {
+    return lossFunctionPtr->forwardPropagate(predictions, groundTruths);
+}
+
+
 // Training
 
 void Model::trainExample(Eigen::VectorXd features, Eigen::VectorXd label, double alpha) {
@@ -39,12 +54,4 @@ std::ostream& operator<<(std::ostream &os, const Model &model) {
     }
     os << "}\n";
     return os;
-}
-
-Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
-    Eigen::MatrixXd outputOfPrevLayer = input;
-    for (int i = 0; i < layerPtrs.size(); ++i) {
-        outputOfPrevLayer = layerPtrs[i]->forwardPropagate(outputOfPrevLayer);
-    }
-    return outputOfPrevLayer;
 }

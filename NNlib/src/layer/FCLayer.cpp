@@ -28,12 +28,6 @@ MatrixXd FCLayer::forwardPropagate(const MatrixXd &inputs) {
 // Backward propagation
 
 MatrixXd FCLayer::calculateGradientsWrtInputs(const MatrixXd &topDerivatives) {
-    int examplesNum = layerInputs.cols();
-    MatrixXd meanBatchDerivativesByWeights(weights.rows(), weights.cols());
-    for (int i = 0; i < examplesNum; i++) {
-        meanBatchDerivativesByWeights += topDerivatives.col(i) * layerInputs.col(i).transpose();
-    }
-    meanBatchDerivativesByWeights = meanBatchDerivativesByWeights / examplesNum;
     using Eigen::placeholders::last, Eigen::placeholders::all;
     MatrixXd bottomDerivatives = weights(all, Eigen::seq(1, last)).transpose() *
                                                                         topDerivatives;
