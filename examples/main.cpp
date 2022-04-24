@@ -2,11 +2,12 @@
 // Created by vityha on 11.04.22.
 //
 
+#include <Model.h>
+#include <lossfunction/MSELossFunction.h>
+#include <Eigen/Core>
+
+#include <iostream>
 #include <memory>
-
-#include "Model.h"
-#include "lossfunction/MSELossFunction.h"
-
 
 int main() {
     Model model{2, std::shared_ptr<MSELossFunction>(new MSELossFunction())};
