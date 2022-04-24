@@ -11,7 +11,7 @@ Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
     return outputOfPrevLayer;
 }
 
-double Model::calcLoss(Eigen::MatrixXd input, const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths) {
+double Model::calcLoss(const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths) {
     return lossFunctionPtr->forwardPropagate(predictions, groundTruths);
 }
 

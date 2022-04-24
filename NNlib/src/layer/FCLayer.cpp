@@ -36,12 +36,16 @@ MatrixXd FCLayer::calculateGradientsWrtInputs(const MatrixXd &topDerivatives) {
 
 MatrixXd FCLayer::calculateGradientsWrtWeights(const MatrixXd &topDerivatives) {
     int examplesNum = layerInputs.cols();
+#if 0
     MatrixXd meanBatchDerivativesByWeights(weights.rows(), weights.cols());
     for (int i = 0; i < examplesNum; i++) {
         meanBatchDerivativesByWeights += topDerivatives.col(i) * layerInputs.col(i).transpose();
     }
     meanBatchDerivativesByWeights = meanBatchDerivativesByWeights / examplesNum;
     return meanBatchDerivativesByWeights;
+#else
+    return topDerivatives * layerInputs.transpose();
+#endif
 }
 
 // Weights

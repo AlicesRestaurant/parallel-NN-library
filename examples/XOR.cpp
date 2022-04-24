@@ -29,7 +29,7 @@ int main() {
     model.addLayer<SigmoidActivationLayer>(1);
 
     //train model
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 10000; i++) {
         model.trainBatch(features, labels.transpose(), alpha);
     }
 

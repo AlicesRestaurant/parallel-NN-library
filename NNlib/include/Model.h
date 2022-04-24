@@ -18,7 +18,7 @@ public:
     {}
 
     Eigen::MatrixXd forwardPass(Eigen::MatrixXd input);
-    double calcLoss(Eigen::MatrixXd input, const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths);
+    double calcLoss(const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths);
 
     template<class LayerType, class... Args>
     void addLayer(Args... args) {

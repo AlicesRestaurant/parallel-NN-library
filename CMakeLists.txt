@@ -43,6 +43,7 @@ endfunction()
 addTestExample(main examples/main.cpp)
 addTestExample(XOR examples/XOR.cpp)
 addTestExample(NOR examples/NOR.cpp)
+addTestExample(AutoInsurSwedenFitting examples/AutoInsurSwedenFitting.cpp)
 
 # Add testing executable
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
