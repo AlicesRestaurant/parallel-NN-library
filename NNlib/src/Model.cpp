@@ -1,11 +1,14 @@
 #include "Model.h"
 #include "layer/Layer.h"
 
+#include <cstddef>
+#include <iostream>
+
 // Forward
 
 Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
     Eigen::MatrixXd outputOfPrevLayer = input;
-    for (int i = 0; i < layerPtrs.size(); ++i) {
+    for (size_t i = 0; i < layerPtrs.size(); ++i) {
         outputOfPrevLayer = layerPtrs[i]->forwardPropagate(outputOfPrevLayer);
     }
     return outputOfPrevLayer;
@@ -30,7 +33,7 @@ void Model::trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double 
         layerPtrs.back()->updateWeights(layerPtrs.back()->getWeights() -
                                         alpha * layerPtrs.back()->calculateGradientsWrtWeights(topDerivatives));
     }
-    for (int i = layerPtrs.size() - 1; i > 0; --i) {
+    for (size_t i = layerPtrs.size() - 1; i > 0; --i) {
         topDerivatives = layerPtrs[i]->calculateGradientsWrtInputs(topDerivatives);
         if (layerPtrs[i - 1]->getLayerType() == Layer::LayerType::FC) {
             layerPtrs[i - 1]->updateWeights(layerPtrs[i - 1]->getWeights() -
@@ -43,11 +46,11 @@ void Model::trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double 
 
 std::ostream& operator<<(std::ostream &os, const Model &model) {
     os << "MLP {\n\tnumInputNodes = " << model.numInputNodes << ",\n";
-    for (int i = 0; i < model.layerPtrs.size(); ++i){
+    for (size_t i = 0; i < model.layerPtrs.size(); ++i){
         os << "\tlayer " << i + 1 << " = layer{\n"
            << "\t\tweights = \n";
         Eigen::MatrixXd weights = model.layerPtrs[i]->getWeights();
-        for (int rowIdx = 0; rowIdx < weights.rows(); ++rowIdx) {
+        for (size_t rowIdx = 0; rowIdx < weights.rows(); ++rowIdx) {
             os << "\t\t\t" << weights.row(rowIdx) << '\n';
         }
         os << "\t}\n";

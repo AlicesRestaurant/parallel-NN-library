@@ -10,10 +10,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cstddef>
 
 class Model {
 public:
-    Model(int numInputNodes, const std::shared_ptr<LossFunction>& lossFunctionPtr) : numInputNodes{numInputNodes},
+    Model(size_t numInputNodes, const std::shared_ptr<LossFunction>& lossFunctionPtr) : numInputNodes{numInputNodes},
                                                                                    lossFunctionPtr{lossFunctionPtr}
     {}
 
@@ -34,7 +35,7 @@ protected:
 
     std::shared_ptr<LossFunction> lossFunctionPtr;
 
-    const int numInputNodes;
+    const size_t numInputNodes;
 };
 
 
