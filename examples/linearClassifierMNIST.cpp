@@ -1,7 +1,8 @@
 #include <Model.h>
 #include <layer/FCLayer.h>
-#include <lossfunction/SoftMaxLossFunction.h>
 #include <layer/SigmoidActivationLayer.h>
+#include <lossfunction/SoftMaxLossFunction.h>
+#include "lossfunction/SVMLossFunction.h"
 #include <Eigen/Core>
 
 #include <iostream>
@@ -51,7 +52,7 @@ void fitNN(const MatrixXd &trainImages, const MatrixXd &trainLabels, const Matri
            unsigned long numIters, double alpha) {
     size_t numInputsNeurons = trainImages.rows();
     size_t numOutputNeurons = trainLabels.rows();
-    Model model{numInputsNeurons, std::make_shared<SoftMaxLossFunction>()};
+    Model model{numInputsNeurons, std::make_shared<SVMLossFunction>()};
     model.addLayer<FCLayer>(numOutputNeurons, numInputsNeurons, -1.0/255, 1.0/255);
 
     for (unsigned long i = 0; i < numIters; ++i) {
