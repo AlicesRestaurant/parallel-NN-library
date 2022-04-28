@@ -11,10 +11,12 @@ using Eigen::MatrixXd;
 
 // Initialization
 
-FCLayer::FCLayer(int nodesNumber, int layerInputsNumber) :
-                                                Layer{nodesNumber, Layer::LayerType::FC},
-                                                weights(MatrixXd::Random(nodesNumber, layerInputsNumber + 1))
-{}
+FCLayer::FCLayer(size_t nodesNumber, size_t layerInputsNumber, double minWeight, double maxWeight) :
+        Layer{nodesNumber, Layer::LayerType::FC},
+        weights(MatrixXd::Random(nodesNumber, layerInputsNumber + 1))
+{
+    weights = (weights.array() + 1) / 2 * (maxWeight - minWeight) + minWeight;
+}
 
 // Forward propagation
 

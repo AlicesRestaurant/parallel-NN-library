@@ -4,9 +4,11 @@
 
 #include "layer/Layer.h"
 
+#include <cstddef>
+
 // Initialization
 
-Layer::Layer(int nodesNumber, LayerType layerType) : nodesNumber{nodesNumber}, layerType{layerType} {}
+Layer::Layer(size_t nodesNumber, LayerType layerType) : nodesNumber{nodesNumber}, layerType{layerType} {}
 
 // Structure
 

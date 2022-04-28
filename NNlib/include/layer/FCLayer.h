@@ -13,7 +13,7 @@
 
 class FCLayer : public Layer {
 public:
-    FCLayer(int nodesNumber, int layerInputsNumber);
+    FCLayer(size_t nodesNumber, size_t layerInputsNumber, double minWeight = -1, double maxWeight = 1);
 
     Eigen::MatrixXd forwardPropagate(const Eigen::MatrixXd &bottomData) override;
 
