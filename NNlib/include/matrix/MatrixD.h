@@ -7,10 +7,11 @@
 
 #include <vector>
 #include <stdexcept>
+#include <cstddef>
 
 class MatrixD {
 public:
-    MatrixD(int xDim, int yDim, std::vector<double> &data) : xDim(xDim), yDim(yDim), data(data) {}
+    MatrixD(size_t xDim, size_t yDim, std::vector<double> &data) : xDim(xDim), yDim(yDim), data(data) {}
 
     double& operator()(unsigned int x, unsigned int y)
     {
@@ -21,7 +22,7 @@ public:
 
 private:
     std::vector<double> data;
-    int xDim, yDim;
+    size_t xDim, yDim;
 };
 
 
