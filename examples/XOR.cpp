@@ -19,8 +19,11 @@ int main() {
     DynVector labels(4);
     labels << 0, 1, 1, 0;
 
+    srand((unsigned int) 2);
+
     //create model
-    double alpha = 0.1;
+    double alpha = 1;
+
     // TODO: initialize mlp
     Model model{2, std::make_shared<MSELossFunction>()};
     model.addLayer<FCLayer>(2, 2);

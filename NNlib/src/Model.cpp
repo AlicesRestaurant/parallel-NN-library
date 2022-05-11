@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <iostream>
 
+#define DEBUG
+
 // Forward
 
 Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
