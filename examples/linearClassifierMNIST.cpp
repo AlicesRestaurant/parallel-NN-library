@@ -1,7 +1,8 @@
 #include <Model.h>
 #include <layer/FCLayer.h>
-#include <lossfunction/SoftMaxLossFunction.h>
 #include <layer/SigmoidActivationLayer.h>
+#include <lossfunction/SoftMaxLossFunction.h>
+#include "lossfunction/SVMLossFunction.h"
 #include <Eigen/Core>
 
 #include <iostream>
@@ -29,7 +30,7 @@ constexpr const char* trainLabelsFilename = "train-labels.idx1-ubyte";
 constexpr const char* testImagesFilename = "t10k-images.idx3-ubyte";
 constexpr const char* testLabelsFilename = "t10k-labels.idx1-ubyte";
 
-constexpr unsigned long NUM_ITERS = 1'00ul;
+constexpr unsigned long NUM_ITERS = 500ul;
 constexpr double ALPHA = 1e-5;
 
 int main() {
@@ -51,11 +52,11 @@ void fitNN(const MatrixXd &trainImages, const MatrixXd &trainLabels, const Matri
            unsigned long numIters, double alpha) {
     size_t numInputsNeurons = trainImages.rows();
     size_t numOutputNeurons = trainLabels.rows();
-    Model model{numInputsNeurons, std::make_shared<SoftMaxLossFunction>()};
-    model.addLayer<FCLayer>(numOutputNeurons, numInputsNeurons);
+    Model model{numInputsNeurons, std::make_shared<SVMLossFunction>()};
+    model.addLayer<FCLayer>(numOutputNeurons, numInputsNeurons, -1.0/255, 1.0/255);
 
     for (unsigned long i = 0; i < numIters; ++i) {
-        if (i % 10ul == 0) {
+        if (i % 100ul == 0) {
             std::cout << "Loss on train:\t" << model.calcLoss(model.forwardPass(trainImages), trainLabels) << '\n';
             std::cout << "Loss on test:\t" << model.calcLoss(model.forwardPass(testImages), testLabels) << '\n' << std::endl;
         }
@@ -72,6 +73,7 @@ void fitNN(const MatrixXd &trainImages, const MatrixXd &trainLabels, const Matri
         }
     }
     std::cout << "Error Rate: " << 100.0 * (testImages.cols() - numCorrect) / testImages.cols() << '%' <<  std::endl;
+    std::cout << "Model: " << model << std::endl;
 }
 
 void readImages(MatrixXd &outImages, const std::string &fname) {

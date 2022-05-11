@@ -7,6 +7,7 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include <cstddef>
 
 class Layer {
 public:
@@ -15,7 +16,7 @@ public:
         Activation
     };
 
-    explicit Layer(int nodesNumber, LayerType layerType);
+    explicit Layer(size_t nodesNumber, LayerType layerType);
 
     virtual Eigen::MatrixXd forwardPropagate(const Eigen::MatrixXd &bottomData) = 0;
 
@@ -31,7 +32,7 @@ public:
 
 protected:
     Eigen::MatrixXd layerInputs;
-    const int nodesNumber;
+    const size_t nodesNumber;
     const LayerType layerType;
 };
 

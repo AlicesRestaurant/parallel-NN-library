@@ -14,7 +14,7 @@ Eigen::MatrixXd SMActivationLayer::calculateActivations(const Eigen::MatrixXd &i
     return inputs.unaryExpr(std::ref(exp)) * denominators.asDiagonal();
 }
 
-Eigen::MatrixXd SMActivationLayer::calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) {
+Eigen::MatrixXd SMActivationLayer::calculateDerivatives(const Eigen::MatrixXd &topDerivatives) {
     MatrixXd derivativesByActivationInputs(nodesNumber, layerInputs.cols());
     MatrixXd layerOutputs = calculateActivations(layerInputs);
     for (int exampleNum = 0; exampleNum < layerInputs.cols(); exampleNum++) {

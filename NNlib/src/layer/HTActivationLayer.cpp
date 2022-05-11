@@ -13,7 +13,7 @@ Eigen::MatrixXd HTActivationLayer::calculateActivations(const Eigen::MatrixXd &i
     return inputs.unaryExpr([](double x) { return (exp(x) - exp(-x)) / (exp(x) + exp(-x)); });
 }
 
-Eigen::MatrixXd HTActivationLayer::calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) {
+Eigen::MatrixXd HTActivationLayer::calculateDerivatives(const Eigen::MatrixXd &topDerivatives) {
     MatrixXd activationDerivatives = layerInputs.unaryExpr(
             [](double x) { return 2 / pow((exp(x) + exp(-x)), 2); });
     return topDerivatives.cwiseProduct(activationDerivatives);

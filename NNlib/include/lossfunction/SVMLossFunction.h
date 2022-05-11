@@ -15,7 +15,7 @@ public:
             size_t groundTruthIdx = getGroundTruthIdxFromOneHot(labels.col(colIdx));
             // TODO: possibility to do without copying???
             Eigen::VectorXd curColumnCopy{bottomData.col(colIdx)};
-            curColumnCopy = (curColumnCopy.array() - bottomData(colIdx, groundTruthIdx) + 1).max(0);
+            curColumnCopy = (curColumnCopy.array() - bottomData(groundTruthIdx, colIdx) + 1).max(0);
             curColumnCopy(groundTruthIdx) = 0;
             lossValue += curColumnCopy.sum();
         }
@@ -34,6 +34,7 @@ public:
             gradientMatrix(groundTruthIdx, colIdx) = -gradientMatrix.col(colIdx).sum();
         }
         gradientMatrix /= bottomData.cols();
+        return gradientMatrix;
     }
 protected:
     size_t getGroundTruthIdxFromOneHot(const Eigen::VectorXd &oneHot) {
