@@ -14,6 +14,12 @@ class MatrixD {
 public:
     MatrixD(size_t xDim, size_t yDim, std::vector<double> &data) : xDim(xDim), yDim(yDim), data(data) {}
 
+    const double &operator()(unsigned int x, unsigned int y) const {
+        if (x >= xDim || y >= yDim)
+            throw std::out_of_range("matrix indices out of range");
+        return data[xDim * y + x];
+    }
+
     double &operator()(unsigned int x, unsigned int y){
         if (x >= xDim || y >= yDim)
             throw std::out_of_range("matrix indices out of range");
@@ -30,19 +36,22 @@ public:
                     os << " ";
                 }
             }
-            os << "]\n";
+            os << "]";
+            if (i != matrix.rows() - 1) {
+                os << "\n";
+            }
         }
-        os << "]";
+        os << "]\n";
 
         return os;
     }
 
     size_t rows() const {
-        return xDim + 1;
+        return xDim;
     }
 
     size_t cols() const {
-        return yDim + 1;
+        return yDim;
     }
 
 private:

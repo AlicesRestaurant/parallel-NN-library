@@ -47,9 +47,15 @@ addTestExample(AutoInsurSwedenFitting examples/AutoInsurSwedenFitting.cpp)
 addTestExample(linearClassifierMNIST examples/linearClassifierMNIST.cpp)
 addTestExample(matrixMult examples/matrixMult.cpp)
 addTestExample(projectPresentationExample examples/projectPresentationExample.cpp)
+addTestExample(primitiveMatrixMult examples/primitiveMatrixMult.cpp)
+
+# Add libraries
+find_package(Threads REQUIRED)
+target_link_libraries(primitiveMatrixMult ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(primitiveMatrixMult Eigen3::Eigen)
 
 # Add testing executable
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
     add_subdirectory(googletest)
     add_executable(
             NNlib_test
@@ -60,7 +66,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
             gtest_main
     )
     target_link_libraries(NNlib_test ${LIBRARY_NAME})
-else()
+else ()
     message(WARNING "Clone Gtest into project's root directory to be able to run Google tests:\n\
 git clone https://github.com/google/googletest.git")
-endif()
+endif ()
