@@ -14,10 +14,14 @@ class MatrixD {
 public:
     MatrixD(size_t xDim, size_t yDim, std::vector<double> &data) : xDim(xDim), yDim(yDim), data(data) {}
 
-    double &operator()(unsigned int x, unsigned int y){
+    double &operator()(unsigned int x, unsigned int y) {
         if (x >= xDim || y >= yDim)
             throw std::out_of_range("matrix indices out of range");
         return data[xDim * y + x];
+    }
+
+    double operator()(unsigned int x, unsigned int y) const {
+        return this->operator()(x, y);
     }
 
     friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix) {
