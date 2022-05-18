@@ -13,10 +13,11 @@
 
 class MatrixD {
 public:
+    static bool parallelExecution;
+    static size_t numOfProcs;
+
     MatrixD(size_t nRows, size_t nCols) : nRows(nRows), nCols(nCols), data(nRows * nCols) {}
-
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
-
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
 
     // data is in column-major way
@@ -44,11 +45,12 @@ public:
         return nCols;
     }
 
+    static void setParallelExecution(bool parExecution);
+
+    static void setNumberProcessors(size_t numProcessors);
 private:
     std::vector<double> data;
     size_t nRows, nCols;
-    size_t numOfProcs = 6;
-    bool parallel = true;
 
     MatrixD primitiveMultiplication(const MatrixD &B);
 

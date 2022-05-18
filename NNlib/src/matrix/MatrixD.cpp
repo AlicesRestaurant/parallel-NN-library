@@ -61,7 +61,7 @@ MatrixD MatrixD::primitiveMultiplication(const MatrixD &B) {
     for (size_t i = 0; i < curNumOfProcs; ++i) {
         startRow = endRow;
         endRow += quotient + (i < remainder);
-        if (parallel) {
+        if (parallelExecution) {
             threads.emplace_back(rowsMatrixMultiplication, startRow, endRow,
                                  std::cref(mA), std::cref(mB), std::ref(mC));
         } else {
@@ -90,6 +90,7 @@ MatrixD::rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD 
 }
 
 // Comparison operators
+
 bool operator==(const MatrixD& left, const MatrixD& right) {
     if (left.rows() != right.rows() || left.cols() != right.cols()) {
         return false;
@@ -106,4 +107,17 @@ bool operator==(const MatrixD& left, const MatrixD& right) {
 
 bool operator!=(const MatrixD& left, const MatrixD& right) {
     return !(left == right);
+}
+
+// Parallel parameters
+
+bool MatrixD::parallelExecution = false;
+size_t MatrixD::numOfProcs = 6;
+
+void MatrixD::setParallelExecution(bool parExecution) {
+    parallelExecution = parExecution;
+}
+
+void MatrixD::setNumberProcessors(size_t numProcessors) {
+    numOfProcs = numProcessors;
 }
