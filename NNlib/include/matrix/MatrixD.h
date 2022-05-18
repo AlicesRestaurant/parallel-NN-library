@@ -9,28 +9,27 @@
 #include <stdexcept>
 #include <cstddef>
 #include <iostream>
+#include <utility> // std::move
 
 class MatrixD {
 public:
-    MatrixD(size_t xDim, size_t yDim) : xDim(xDim), yDim(yDim) {
-        data.reserve(xDim * yDim);
-    }
+    MatrixD(size_t nRows, size_t nCols) : nRows(nRows), nCols(nCols), data(nRows * nCols) {}
 
-    MatrixD(size_t xDim, size_t yDim, std::vector<double> &data) : xDim(xDim), yDim(yDim), data(data) {}
+    MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
 
-    MatrixD(size_t xDim, size_t yDim, std::vector<double> &&data) : xDim(xDim), yDim(yDim), data(data) {}
+    MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
 
     // data is in column-major way
-    const double &operator()(unsigned int x, unsigned int y) const {
-        if (x >= xDim || y >= yDim)
+    double operator()(size_t y, size_t x) const {
+        if (x >= nCols || y >= nRows)
             throw std::out_of_range("matrix indices out of range");
-        return data[xDim * y + x];
+        return data[nCols * y + x];
     }
 
-    double &operator()(unsigned int x, unsigned int y) {
-        if (x >= xDim || y >= yDim)
+    double &operator()(size_t y, size_t x) {
+        if (x >= nCols || y >= nRows)
             throw std::out_of_range("matrix indices out of range");
-        return data[xDim * y + x];
+        return data[nCols * y + x];
     }
 
     MatrixD operator*(const MatrixD &B);
@@ -38,24 +37,26 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix);
 
     size_t rows() const {
-        return xDim;
+        return nRows;
     }
 
     size_t cols() const {
-        return yDim;
+        return nCols;
     }
 
 private:
     std::vector<double> data;
-    size_t xDim, yDim;
+    size_t nRows, nCols;
     size_t numOfProcs = 6;
     bool parallel = true;
 
     MatrixD primitiveMultiplication(const MatrixD &B);
 
     static void
-    rowsMatrixMultiplication(size_t firstRow, size_t lastRow, const MatrixD &A, const MatrixD &B, MatrixD &C);
+    rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, const MatrixD &B, MatrixD &C);
 };
 
+bool operator==(const MatrixD& left, const MatrixD& right);
+bool operator!=(const MatrixD& left, const MatrixD& right);
 
 #endif //NNLIB_AND_TEST_EXAMPLE_MATRIXD_H

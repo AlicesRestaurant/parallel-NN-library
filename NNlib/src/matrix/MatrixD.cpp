@@ -5,6 +5,9 @@
 #include "matrix/MatrixD.h"
 
 #include <thread>
+#include <functional> // ref, cref
+#include <string>
+#include <stdexcept> // runtime_error
 
 // Printing
 
@@ -31,6 +34,11 @@ std::ostream &operator<<(std::ostream &os, const MatrixD &matrix) {
 // Multiplication
 
 MatrixD MatrixD::operator*(const MatrixD &B) {
+    if (this->cols() != B.rows()) {
+        throw std::runtime_error(
+                "Number of columns of the first matrix does not match number of rows of the second." +
+                std::to_string(this->cols()) + " != " + std::to_string(B.rows()));
+    }
     return primitiveMultiplication(B);
 }
 
@@ -44,43 +52,58 @@ MatrixD MatrixD::primitiveMultiplication(const MatrixD &B) {
         curNumOfProcs = mA.rows();
     }
 
-    size_t firstRow, lastRow;
     std::vector<std::thread> threads;
     threads.reserve(curNumOfProcs);
+    size_t quotient = mA.rows() / curNumOfProcs;
+    size_t remainder = mA.rows() % curNumOfProcs;
 
-    for (size_t i = 0; i < curNumOfProcs; i++) {
-        if (i == curNumOfProcs - 1) {
-            firstRow = (mA.rows() / curNumOfProcs) * i;
-            lastRow = mA.rows() - 1;
-        } else {
-            firstRow = (mA.rows() / curNumOfProcs) * i;
-            lastRow = (mA.rows() / curNumOfProcs) * (i + 1) - 1;
-        }
+    size_t startRow, endRow = 0;
+    for (size_t i = 0; i < curNumOfProcs; ++i) {
+        startRow = endRow;
+        endRow += quotient + (i < remainder);
         if (parallel) {
-            threads.emplace_back(rowsMatrixMultiplication, firstRow, lastRow, std::ref(mA), std::ref(mB), std::ref(mC));
+            threads.emplace_back(rowsMatrixMultiplication, startRow, endRow,
+                                 std::cref(mA), std::cref(mB), std::ref(mC));
         } else {
-            rowsMatrixMultiplication(firstRow, lastRow, mA, mB, mC);
+            rowsMatrixMultiplication(startRow, endRow, mA, mB, mC);
         }
     }
 
     for (auto &th: threads) {
-        if (th.joinable()) {
-            th.join();
-        }
+        th.join();
     }
 
     return mC;
 }
 
 void
-MatrixD::rowsMatrixMultiplication(size_t firstRow, size_t lastRow, const MatrixD &A, const MatrixD &B, MatrixD &C) {
-    for (size_t iA = firstRow; iA <= lastRow; iA++) {
-        for (size_t jB = 0; jB < B.cols(); jB++) {
+MatrixD::rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, const MatrixD &B, MatrixD &C) {
+    for (size_t iA = startRow; iA < endRow; ++iA) {
+        for (size_t jB = 0; jB < B.cols(); ++jB) {
             double sum = 0;
-            for (int k = 0; k < A.cols(); k++) {
+            for (size_t k = 0; k < A.cols(); ++k) {
                 sum += A(iA, k) * B(k, jB);
             }
             C(iA, jB) = sum;
         }
     }
+}
+
+// Comparison operators
+bool operator==(const MatrixD& left, const MatrixD& right) {
+    if (left.rows() != right.rows() || left.cols() != right.cols()) {
+        return false;
+    }
+    for (size_t rowIdx = 0; rowIdx < left.rows(); ++rowIdx) {
+        for (size_t colIdx = 0; colIdx < left.cols(); ++colIdx) {
+            if (left(rowIdx, colIdx) != right(rowIdx, colIdx)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool operator!=(const MatrixD& left, const MatrixD& right) {
+    return !(left == right);
 }
