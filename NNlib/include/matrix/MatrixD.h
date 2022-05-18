@@ -12,39 +12,30 @@
 
 class MatrixD {
 public:
+    MatrixD(size_t xDim, size_t yDim) : xDim(xDim), yDim(yDim) {
+        data.reserve(xDim * yDim);
+    }
+
     MatrixD(size_t xDim, size_t yDim, std::vector<double> &data) : xDim(xDim), yDim(yDim), data(data) {}
 
+    MatrixD(size_t xDim, size_t yDim, std::vector<double> &&data) : xDim(xDim), yDim(yDim), data(data) {}
+
+    // data is in column-major way
     const double &operator()(unsigned int x, unsigned int y) const {
         if (x >= xDim || y >= yDim)
             throw std::out_of_range("matrix indices out of range");
         return data[xDim * y + x];
     }
 
-    double &operator()(unsigned int x, unsigned int y){
+    double &operator()(unsigned int x, unsigned int y) {
         if (x >= xDim || y >= yDim)
             throw std::out_of_range("matrix indices out of range");
         return data[xDim * y + x];
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix) {
-        os << "[";
-        for (size_t i = 0; i < matrix.rows(); i++) {
-            os << "[";
-            for (size_t j = 0; j < matrix.cols(); j++) {
-                os << matrix(i, j);
-                if (j != matrix.cols() - 1) {
-                    os << " ";
-                }
-            }
-            os << "]";
-            if (i != matrix.rows() - 1) {
-                os << "\n";
-            }
-        }
-        os << "]\n";
+    MatrixD operator*(const MatrixD &B);
 
-        return os;
-    }
+    friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix);
 
     size_t rows() const {
         return xDim;
@@ -57,6 +48,13 @@ public:
 private:
     std::vector<double> data;
     size_t xDim, yDim;
+    size_t numOfProcs = 6;
+    bool parallel = true;
+
+    MatrixD primitiveMultiplication(const MatrixD &B);
+
+    static void
+    rowsMatrixMultiplication(size_t firstRow, size_t lastRow, const MatrixD &A, const MatrixD &B, MatrixD &C);
 };
 
 

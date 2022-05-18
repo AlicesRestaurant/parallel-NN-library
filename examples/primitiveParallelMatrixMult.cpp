@@ -16,7 +16,7 @@
 //multiply in each thread
 //write result in C
 
-#define PARALLEL
+//#define PARALLEL
 
 void multiply(size_t firstRow, size_t lastRow, MatrixD &A, MatrixD &B, MatrixD &C) {
     for (size_t iA = firstRow; iA <= lastRow; iA++) {
@@ -31,25 +31,30 @@ void multiply(size_t firstRow, size_t lastRow, MatrixD &A, MatrixD &B, MatrixD &
 }
 
 int main() {
-    size_t mat_n = 4;
+    size_t mat_m = 5, mat_n = 4;
 
     std::vector<double> v1{1, 5, 8, 6,
                            1, 3, 7, 6,
                            1, 3, 4, 6,
-                           1, 2, 7, 6};
+                           1, 2, 7, 6,
+                           7, 2, 3, 4};
     std::vector<double> v2{1, 3, 8, 6,
                            1, 3, 9, 6,
                            1, 1, 1, 1,
                            1, 2, 7, 6};
-    std::vector<double> vC(mat_n * mat_n);
-    MatrixD mA(mat_n, mat_n, v1);
+    std::vector<double> vC(mat_m * mat_n);
+    MatrixD mA(mat_m, mat_n, v1);
     MatrixD mB(mat_n, mat_n, v2);
-    MatrixD mC(mat_n, mat_n, vC);
+    MatrixD mC(mat_m, mat_n, vC);
 
-    size_t numOfProcs = 3;
+    size_t numOfProcs = 6;
+    if (numOfProcs > mA.rows()) {
+        numOfProcs = mA.rows();
+    }
+
     size_t firstRow, lastRow;
     std::vector<std::thread> threads;
-    threads.reserve(3);
+    threads.reserve(numOfProcs);
 
     for (size_t i = 0; i < numOfProcs; i++) {
         if (i == numOfProcs - 1) {
@@ -76,7 +81,7 @@ int main() {
 
 //    compare with Eigen
 
-    Eigen::MatrixXd eA = Eigen::Map<Eigen::Matrix<double, 4, 4>>(v1.data());
+    Eigen::MatrixXd eA = Eigen::Map<Eigen::Matrix<double, 5, 4>>(v1.data());
     Eigen::MatrixXd eB = Eigen::Map<Eigen::Matrix<double, 4, 4>>(v2.data());
 
     std::cout << eA * eB;

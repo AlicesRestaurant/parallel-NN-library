@@ -45,14 +45,19 @@ addTestExample(XOR examples/XOR.cpp)
 addTestExample(NOR examples/NOR.cpp)
 addTestExample(AutoInsurSwedenFitting examples/AutoInsurSwedenFitting.cpp)
 addTestExample(linearClassifierMNIST examples/linearClassifierMNIST.cpp)
-addTestExample(matrixMult examples/matrixMult.cpp)
+addTestExample(partitionMatrixMult examples/partitionMatrixMult.cpp)
 addTestExample(projectPresentationExample examples/projectPresentationExample.cpp)
-addTestExample(primitiveMatrixMult examples/primitiveMatrixMult.cpp)
+addTestExample(primitiveMatrixMult examples/primitiveParallelMatrixMult.cpp)
+addTestExample(matrixMult examples/matrixMult.cpp)
 
 # Add libraries
 find_package(Threads REQUIRED)
+
+
 target_link_libraries(primitiveMatrixMult ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(primitiveMatrixMult Eigen3::Eigen)
+
+target_link_libraries("${LIBRARY_NAME}" ${CMAKE_THREAD_LIBS_INIT})
 
 # Add testing executable
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
