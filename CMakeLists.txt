@@ -40,7 +40,6 @@ function(addTestExample target_name_of_example)
     target_link_libraries("${target_name_of_example}" "${LIBRARY_NAME}")
 endfunction()
 
-addTestExample(main examples/main.cpp)
 addTestExample(XOR examples/XOR.cpp)
 addTestExample(NOR examples/NOR.cpp)
 addTestExample(AutoInsurSwedenFitting examples/AutoInsurSwedenFitting.cpp)
@@ -48,7 +47,7 @@ addTestExample(linearClassifierMNIST examples/linearClassifierMNIST.cpp)
 addTestExample(partitionMatrixMult examples/partitionMatrixMult.cpp)
 addTestExample(projectPresentationExample examples/projectPresentationExample.cpp)
 addTestExample(primitiveMatrixMult examples/primitiveParallelMatrixMult.cpp)
-addTestExample(matrixMult examples/matrixMult.cpp)
+addTestExample(matrixMult examples/matrixMult.cpp examples/time_measurement.h)
 
 # Add libraries
 find_package(Threads REQUIRED)

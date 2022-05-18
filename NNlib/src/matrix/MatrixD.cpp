@@ -56,7 +56,7 @@ MatrixD MatrixD::primitiveMultiplication(const MatrixD &B) {
             firstRow = (mA.rows() / curNumOfProcs) * i;
             lastRow = (mA.rows() / curNumOfProcs) * (i + 1) - 1;
         }
-        if (parallel) {
+        if (parallelExecution) {
             threads.emplace_back(rowsMatrixMultiplication, firstRow, lastRow, std::ref(mA), std::ref(mB), std::ref(mC));
         } else {
             rowsMatrixMultiplication(firstRow, lastRow, mA, mB, mC);
@@ -83,4 +83,17 @@ MatrixD::rowsMatrixMultiplication(size_t firstRow, size_t lastRow, const MatrixD
             C(iA, jB) = sum;
         }
     }
+}
+
+// Parallel parameters
+
+bool MatrixD::parallelExecution = false;
+size_t MatrixD::numOfProcs = 6;
+
+void MatrixD::setParallelExecution(bool parExecution) {
+    parallelExecution = parExecution;
+}
+
+void MatrixD::setNumberProcessors(size_t numProcessors) {
+    numOfProcs = numProcessors;
 }

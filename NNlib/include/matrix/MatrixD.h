@@ -12,6 +12,9 @@
 
 class MatrixD {
 public:
+    static bool parallelExecution;
+    static size_t numOfProcs;
+
     MatrixD(size_t xDim, size_t yDim) : xDim(xDim), yDim(yDim) {
         data.reserve(xDim * yDim);
     }
@@ -45,11 +48,12 @@ public:
         return yDim;
     }
 
+    static void setParallelExecution(bool parExecution);
+
+    static void setNumberProcessors(size_t numProcessors);
 private:
     std::vector<double> data;
     size_t xDim, yDim;
-    size_t numOfProcs = 6;
-    bool parallel = true;
 
     MatrixD primitiveMultiplication(const MatrixD &B);
 
