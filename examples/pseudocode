@@ -1,3 +1,19 @@
+init and stop MPI in setExecutionMode() -
+
+just a lib => another process init MPI => lib is called in every process => google +
+
+
+if (comm.rank() == 0) {
+    mA.getRows()
+}
+
+
+
+
+
+
+
+
 MLP {
     enum class LossFunctionType {
         MSE,

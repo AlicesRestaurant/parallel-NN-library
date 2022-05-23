@@ -20,20 +20,18 @@ public:
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
 
-    // data is in column-major way
-    double operator()(size_t y, size_t x) const {
-        if (x >= nCols || y >= nRows)
+    // data is in row-major way
+    double operator()(size_t i, size_t j) const {
+        if (j >= nCols || i >= nRows)
             throw std::out_of_range("matrix indices out of range");
-        return data[nCols * y + x];
+        return data[nCols * i + j];
     }
 
-    double &operator()(size_t y, size_t x) {
-        if (x >= nCols || y >= nRows)
+    double &operator()(size_t i, size_t j) {
+        if (j >= nCols || i >= nRows)
             throw std::out_of_range("matrix indices out of range");
-        return data[nCols * y + x];
+        return data[nCols * i + j];
     }
-
-    MatrixD operator*(const MatrixD &B);
 
     friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix);
 
@@ -47,17 +45,24 @@ public:
 
     static void setParallelExecution(bool parExecution);
 
+    static bool getParallelExecution() {
+        return parallelExecution;
+    }
+
     static void setNumberProcessors(size_t numProcessors);
+
+    static size_t getNumberProcessors() {
+        return numOfProcs;
+    }
 private:
     std::vector<double> data;
     size_t nRows, nCols;
-
-    MatrixD primitiveMultiplication(const MatrixD &B);
-
-    static void
-    rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, const MatrixD &B, MatrixD &C);
 };
 
+MatrixD primitiveMultiplication(const MatrixD &left, const MatrixD &right);
+void rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, const MatrixD &B, MatrixD &C);
+
+MatrixD operator*(const MatrixD &left, const MatrixD &right);
 bool operator==(const MatrixD& left, const MatrixD& right);
 bool operator!=(const MatrixD& left, const MatrixD& right);
 

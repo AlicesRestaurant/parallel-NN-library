@@ -33,21 +33,21 @@ std::ostream &operator<<(std::ostream &os, const MatrixD &matrix) {
 
 // Multiplication
 
-MatrixD MatrixD::operator*(const MatrixD &B) {
-    if (this->cols() != B.rows()) {
+MatrixD operator*(const MatrixD &left, const MatrixD &right) {
+    if (left.cols() != right.rows()) {
         throw std::runtime_error(
                 "Number of columns of the first matrix does not match number of rows of the second." +
-                std::to_string(this->cols()) + " != " + std::to_string(B.rows()));
+                std::to_string(left.cols()) + " != " + std::to_string(right.rows()));
     }
-    return primitiveMultiplication(B);
+    return primitiveMultiplication(left, right);
 }
 
-MatrixD MatrixD::primitiveMultiplication(const MatrixD &B) {
-    const MatrixD &mA = (*this);
-    const MatrixD &mB = B;
+MatrixD primitiveMultiplication(const MatrixD &left, const MatrixD &right) {
+    const MatrixD &mA = left;
+    const MatrixD &mB = right;
     MatrixD mC(mA.rows(), mB.cols(), std::vector<double>(mA.rows() * mB.cols()));
 
-    size_t curNumOfProcs = numOfProcs;
+    size_t curNumOfProcs = MatrixD::getNumberProcessors();
     if (curNumOfProcs > mA.rows()) {
         curNumOfProcs = mA.rows();
     }
@@ -61,7 +61,7 @@ MatrixD MatrixD::primitiveMultiplication(const MatrixD &B) {
     for (size_t i = 0; i < curNumOfProcs; ++i) {
         startRow = endRow;
         endRow += quotient + (i < remainder);
-        if (parallelExecution) {
+        if (MatrixD::getParallelExecution()) {
             threads.emplace_back(rowsMatrixMultiplication, startRow, endRow,
                                  std::cref(mA), std::cref(mB), std::ref(mC));
         } else {
@@ -76,8 +76,7 @@ MatrixD MatrixD::primitiveMultiplication(const MatrixD &B) {
     return mC;
 }
 
-void
-MatrixD::rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, const MatrixD &B, MatrixD &C) {
+void rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, const MatrixD &B, MatrixD &C) {
     for (size_t iA = startRow; iA < endRow; ++iA) {
         for (size_t jB = 0; jB < B.cols(); ++jB) {
             double sum = 0;

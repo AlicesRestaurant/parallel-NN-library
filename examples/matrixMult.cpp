@@ -29,21 +29,21 @@ int main() {
     size_t numElements = 1e+06;
     double range = 1000;
 
-    std::vector<double> v1;
-    std::vector<double> v2;
+    std::vector<double> vA;
+    std::vector<double> vB;
     std::vector<double> vC(mat_m * mat_n);
-    v1.reserve(numElements);
-    v2.reserve(numElements);
-    std::generate_n(std::back_inserter(v1), numElements, gen_rand(range));
-    std::generate_n(std::back_inserter(v2), numElements, gen_rand(range));
+    vA.reserve(numElements);
+    vB.reserve(numElements);
+    std::generate_n(std::back_inserter(vA), numElements, gen_rand(range));
+    std::generate_n(std::back_inserter(vB), numElements, gen_rand(range));
 
 //    for (auto v: v1) {
 //        std::cout << v << ",";
 //    }
 //    std::cout << "\n";
 
-    MatrixD mA(mat_m, mat_n, v1);
-    MatrixD mB(mat_n, mat_n, v2);
+    MatrixD mA(mat_m, mat_n, vA);
+    MatrixD mB(mat_n, mat_n, vB);
     MatrixD mC(mat_m, mat_n, vC);
 
     MatrixD::setNumberProcessors(6);
