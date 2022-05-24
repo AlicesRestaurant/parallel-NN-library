@@ -37,6 +37,8 @@ public:
         return data[nCols * i + j];
     }
 
+    MatrixD operator()(const std::vector<size_t> &rowsIndices, const std::vector<size_t> &colsIndices);
+
     MatrixD cwiseProduct(const MatrixD &other) {
         MatrixD resMat(*this);
         resMat.cwiseProductImplace(other);
