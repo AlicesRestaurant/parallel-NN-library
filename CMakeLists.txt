@@ -41,6 +41,19 @@ set(Eigen3_DIR ./Eigen3/share/eigen3/cmake)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 target_link_libraries("${LIBRARY_NAME}" Eigen3::Eigen)
 
+# Link MPI with library
+find_package(MPI REQUIRED)
+target_include_directories(${LIBRARY_NAME} PRIVATE ${MPI_CXX_INCLUDE_PATH})
+target_link_libraries(${LIBRARY_NAME} ${MPI_CXX_LIBRARIES})
+
+find_package(Boost 1.71.0 COMPONENTS mpi serialization REQUIRED)
+target_include_directories(${LIBRARY_NAME} PRIVATE ${Boost_INCLUDE_DIR})
+target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES})
+
+# Link Threads with library
+find_package(Threads REQUIRED)
+target_link_libraries("${LIBRARY_NAME}" ${CMAKE_THREAD_LIBS_INIT})
+
 # Create test examples and link with our library
 function(addTestExample target_name_of_example)
     # example of usage: addTestExample(targetName src/main.cpp src/my_utils.h)
@@ -57,14 +70,9 @@ addTestExample(projectPresentationExample examples/projectPresentationExample.cp
 addTestExample(primitiveMatrixMult examples/primitiveParallelMatrixMult.cpp)
 addTestExample(matrixMult examples/matrixMult.cpp examples/time_measurement.h)
 
-# Add libraries
-find_package(Threads REQUIRED)
-
-
+# Add libraries to example
 target_link_libraries(primitiveMatrixMult ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(primitiveMatrixMult Eigen3::Eigen)
-
-target_link_libraries("${LIBRARY_NAME}" ${CMAKE_THREAD_LIBS_INIT})
 
 # Add testing executable
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")

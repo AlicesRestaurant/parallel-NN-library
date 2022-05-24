@@ -8,7 +8,28 @@ if (comm.rank() == 0) {
 }
 
 
+void trainDataset(Eigen::MatrixXd features, Eigen::MatrixXd labels, double alpha) {
+    if (comm.rank == 0) {
+        // divide in equal batches => convert in array of matrices
 
+        // generate 6 random numbers in array indices interval
+
+        // 100 times:
+        // send asynchronously random arrays to processors
+        // wait for sends
+
+        // do own calculation
+
+        // recv asynchronously result
+        // wait for recvs
+
+        // merge and update
+    } else {
+        // recv synchronously batch
+        // train batch
+        // send asynchronously result
+    }
+}
 
 
 

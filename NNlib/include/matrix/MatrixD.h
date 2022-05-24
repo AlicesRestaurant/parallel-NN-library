@@ -5,6 +5,10 @@
 #ifndef NNLIB_AND_TEST_EXAMPLE_MATRIXD_H
 #define NNLIB_AND_TEST_EXAMPLE_MATRIXD_H
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+
 #include <vector>
 #include <stdexcept>
 #include <cstddef> // size_t
@@ -14,7 +18,7 @@
 class MatrixD {
 public:
     static bool parallelExecution;
-    static size_t numOfProcs;
+    static size_t numThreads;
 
     MatrixD(size_t nRows, size_t nCols) : nRows(nRows), nCols(nCols), data(nRows * nCols) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
@@ -84,18 +88,32 @@ public:
         return nCols;
     }
 
-    static void setParallelExecution(bool parExecution);
+    static void setParallelExecution(bool parExecution) {
+        parallelExecution = parExecution;
+    }
 
     static bool getParallelExecution() {
         return parallelExecution;
     }
 
-    static void setNumberProcessors(size_t numProcessors);
+    static void setNumberThreads(size_t nThreads) {
+        numThreads = nThreads;
+    }
 
-    static size_t getNumberProcessors() {
-        return numOfProcs;
+    static size_t getNumberThreads() {
+        return numThreads;
     }
 private:
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & data;
+        ar & nRows;
+        ar & nCols;
+    }
+
     std::vector<double> data;
     size_t nRows, nCols;
 };
