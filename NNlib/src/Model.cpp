@@ -8,28 +8,24 @@
 
 // Forward
 
-Eigen::MatrixXd Model::forwardPass(Eigen::MatrixXd input) {
-    Eigen::MatrixXd outputOfPrevLayer = input;
+MatrixType Model::forwardPass(MatrixType input) {
+    MatrixType outputOfPrevLayer = input;
     for (size_t i = 0; i < layerPtrs.size(); ++i) {
         outputOfPrevLayer = layerPtrs[i]->forwardPropagate(outputOfPrevLayer);
     }
     return outputOfPrevLayer;
 }
 
-double Model::calcLoss(const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths) {
+double Model::calcLoss(const MatrixType& predictions, const MatrixType& groundTruths) {
     return lossFunctionPtr->forwardPropagate(predictions, groundTruths);
 }
 
 
 // Training
 
-void Model::trainExample(Eigen::VectorXd features, Eigen::VectorXd label, double alpha) {
-    Model::trainBatch(features, label, alpha);
-}
-
-void Model::trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double alpha) {
-    Eigen::MatrixXd layersOutputs = forwardPass(features);
-    Eigen::MatrixXd topDerivatives =
+void Model::trainBatch(MatrixType features, MatrixType labels, double alpha) {
+    MatrixType layersOutputs = forwardPass(features);
+    MatrixType topDerivatives =
             lossFunctionPtr->backPropagate(layersOutputs, labels);
     if (layerPtrs.back()->getLayerType() == Layer::LayerType::FC) {
         layerPtrs.back()->updateWeights(layerPtrs.back()->getWeights() -
@@ -51,7 +47,7 @@ std::ostream& operator<<(std::ostream &os, const Model &model) {
     for (size_t i = 0; i < model.layerPtrs.size(); ++i){
         os << "\tlayer " << i + 1 << " = layer{\n"
            << "\t\tweights = \n";
-        Eigen::MatrixXd weights = model.layerPtrs[i]->getWeights();
+        MatrixType weights = model.layerPtrs[i]->getWeights();
         for (size_t rowIdx = 0; rowIdx < weights.rows(); ++rowIdx) {
             os << "\t\t\t" << weights.row(rowIdx) << '\n';
         }

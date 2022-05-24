@@ -13,33 +13,33 @@ using Eigen::MatrixXd;
 
 FCLayer::FCLayer(size_t nodesNumber, size_t layerInputsNumber, double minWeight, double maxWeight) :
         Layer{nodesNumber, Layer::LayerType::FC},
-        weights(MatrixXd::Random(nodesNumber, layerInputsNumber + 1))
+        weights(MatrixType::Random(nodesNumber, layerInputsNumber + 1))
 {
     weights = (weights.array() + 1) / 2 * (maxWeight - minWeight) + minWeight;
 }
 
 // Forward propagation
 
-MatrixXd FCLayer::forwardPropagate(const MatrixXd &inputs) {
-    MatrixXd inputsWithBias(inputs.rows() + 1, inputs.cols());
-    inputsWithBias << MatrixXd::Ones(1, inputs.cols()), inputs;
+MatrixType FCLayer::forwardPropagate(const MatrixType &inputs) {
+    MatrixType inputsWithBias(inputs.rows() + 1, inputs.cols());
+    inputsWithBias << MatrixType::Ones(1, inputs.cols()), inputs;
     layerInputs = inputsWithBias;
     return weights * layerInputs;;
 }
 
 // Backward propagation
 
-MatrixXd FCLayer::calculateGradientsWrtInputs(const MatrixXd &topDerivatives) {
+MatrixType FCLayer::calculateGradientsWrtInputs(const MatrixType &topDerivatives) {
     using Eigen::placeholders::last, Eigen::placeholders::all;
-    MatrixXd bottomDerivatives = weights(all, Eigen::seq(1, last)).transpose() *
+    MatrixType bottomDerivatives = weights(all, Eigen::seq(1, last)).transpose() *
                                                                         topDerivatives;
     return bottomDerivatives;
 }
 
-MatrixXd FCLayer::calculateGradientsWrtWeights(const MatrixXd &topDerivatives) {
+MatrixType FCLayer::calculateGradientsWrtWeights(const MatrixType &topDerivatives) {
     int examplesNum = layerInputs.cols();
 #if 0
-    MatrixXd batchDerivativesByWeights(weights.rows(), weights.cols());
+    MatrixType batchDerivativesByWeights(weights.rows(), weights.cols());
     for (int i = 0; i < examplesNum; i++) {
         batchDerivativesByWeights += topDerivatives.col(i) * layerInputs.col(i).transpose();
     }
@@ -51,10 +51,10 @@ MatrixXd FCLayer::calculateGradientsWrtWeights(const MatrixXd &topDerivatives) {
 
 // Weights
 
-void FCLayer::updateWeights(const MatrixXd &newWeights) {
+void FCLayer::updateWeights(const MatrixType &newWeights) {
     weights = newWeights;
 }
 
-MatrixXd FCLayer::getWeights() const {
+MatrixType FCLayer::getWeights() const {
     return weights;
 }

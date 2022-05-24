@@ -31,7 +31,22 @@ std::ostream &operator<<(std::ostream &os, const MatrixD &matrix) {
     return os;
 }
 
-// Multiplication
+// Addition, subtraction, multiplication by scalar etc.
+
+MatrixD operator+(const MatrixD &left, const MatrixD &right) {
+    return cwiseBinaryOperation([] (auto l, auto r) {return l + r;}, left, right);
+}
+MatrixD operator-(const MatrixD &left, const MatrixD &right) {
+    return cwiseBinaryOperation([] (auto l, auto r) {return l - r;}, left, right);
+}
+MatrixD operator*(double scalar, const MatrixD &mat) {
+    return mat.unaryExpr([scalar] (double el) -> double {return scalar * el;});
+}
+MatrixD operator/(double scalar, const MatrixD &mat) {
+    return mat.unaryExpr([scalar] (double el) -> double {return scalar / el;});
+}
+
+// Matrix-Matrix Multiplication
 
 MatrixD operator*(const MatrixD &left, const MatrixD &right) {
     if (left.cols() != right.rows()) {

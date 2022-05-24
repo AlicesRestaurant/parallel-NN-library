@@ -23,8 +23,16 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
         NNlib/src/layer/HTActivationLayer.cpp NNlib/include/layer/HTActivationLayer.h
         NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
         NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h
-        NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h NNlib/src/matrix/MatrixD.cpp NNlib/include/matrix/MatrixD.h)
+        NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h NNlib/src/matrix/MatrixD.cpp NNlib/include/matrix/MatrixD.h
+        NNlib/include/matrix/MatrixType.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
+#if(MSVC)
+#    add_compile_options(/FI"NNlib/include/matrix/MatrixType.h")
+#else()
+#    # GCC or Clang
+##    add_compile_options(-include matrix/MatrixType.h)
+#endif()
+
 
 # Set installation prefix of Eigen3
 set(Eigen3_DIR ./Eigen3/share/eigen3/cmake)
