@@ -123,6 +123,19 @@ bool operator!=(const MatrixD& left, const MatrixD& right) {
     return !(left == right);
 }
 
+// Slicing operators
+
+MatrixD MatrixD::operator()(const std::vector<size_t> &rowsIndices, const std::vector<size_t> &colsIndices) {
+    size_t rows = rowsIndices.size(), cols = colsIndices.size();
+    MatrixD slicedMatrix(rows, cols);
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            slicedMatrix(i, j) = (*this)(rowsIndices[i], colsIndices[j]);
+        }
+    }
+    return slicedMatrix;
+}
+
 // Parallel parameters
 
 bool MatrixD::parallelExecution = false;

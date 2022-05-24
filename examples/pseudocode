@@ -1,3 +1,16 @@
+plan:
+bohdan
+1. conditional compilation
+2. test train model
+viktor
+0. test func
+1. mpi: DistributedTrainer, Trainer
+2. test train model
+3. conv layer
+
+
+
+
 init and stop MPI in setExecutionMode() -
 
 just a lib => another process init MPI => lib is called in every process => google +

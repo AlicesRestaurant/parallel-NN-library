@@ -24,7 +24,8 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
         NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
         NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h
         NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h NNlib/src/matrix/MatrixD.cpp NNlib/include/matrix/MatrixD.h
-        NNlib/include/matrix/MatrixType.h)
+        NNlib/include/matrix/MatrixType.h NNlib/include/utils/random.h NNlib/src/utils/random.cpp NNlib/src/trainer/Trainer.cpp NNlib/include/trainer/Trainer.h
+        NNlib/src/trainer/DistributedTrainer.cpp NNlib/include/trainer/DistributedTrainer.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 #if(MSVC)
 #    add_compile_options(/FI"NNlib/include/matrix/MatrixType.h")
@@ -59,6 +60,14 @@ function(addTestExample target_name_of_example)
     # example of usage: addTestExample(targetName src/main.cpp src/my_utils.h)
     add_executable(${ARGV})
     target_link_libraries("${target_name_of_example}" "${LIBRARY_NAME}")
+    target_link_libraries("${target_name_of_example}" ${CMAKE_THREAD_LIBS_INIT})
+    target_link_libraries("${target_name_of_example}" Eigen3::Eigen)
+
+    target_include_directories(${target_name_of_example} PRIVATE ${MPI_CXX_INCLUDE_PATH})
+    target_link_libraries(${target_name_of_example} ${MPI_CXX_LIBRARIES})
+
+    target_include_directories(${target_name_of_example} PRIVATE ${Boost_INCLUDE_DIR})
+    target_link_libraries(${target_name_of_example} ${Boost_LIBRARIES})
 endfunction()
 
 addTestExample(XOR examples/XOR.cpp)
@@ -71,8 +80,8 @@ addTestExample(primitiveMatrixMult examples/primitiveParallelMatrixMult.cpp)
 addTestExample(matrixMult examples/matrixMult.cpp examples/time_measurement.h)
 
 # Add libraries to example
-target_link_libraries(primitiveMatrixMult ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(primitiveMatrixMult Eigen3::Eigen)
+
+
 
 # Add testing executable
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/googletest/CMakeLists.txt")
