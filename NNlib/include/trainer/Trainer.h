@@ -19,7 +19,7 @@ public:
 protected:
     std::shared_ptr<Model> model;
     double learningRate = 1;
-    size_t batchSize = 30;
+    size_t batchSize = 1;
 
     std::vector<MatrixType> splitMatrixInBatches(MatrixType &mat, size_t batchSize);
 };

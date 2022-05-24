@@ -13,10 +13,10 @@ void Trainer::trainDataset(MatrixType features, MatrixType labels, int numberIte
             batchesLabels = splitMatrixInBatches(labels, batchSize);
     size_t numBatches = batchesFeatures.size();
 
-    // 100 times
+    // n times
     for (int s = 0; s < numberIterations; ++s) {
         // generate random number
-        int batchNumber = generateRandInt(0, numBatches);
+        int batchNumber = generateRandInt(0, numBatches-1);
 
         // do calculation
         std::vector<MatrixType> layersGradients(

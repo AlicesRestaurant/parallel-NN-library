@@ -28,13 +28,13 @@ MatrixType Model::updLayerWeights(size_t layerIdx, MatrixType &layerWeightsGradi
     return layerPtrs[layerIdx]->getWeights();
 }
 
-MatrixType Model::updLayersWeights(std::vector<MatrixType> &layersWeightsGradients, double alpha) {
-    std::vector<size_t> FCLayersIdx = getFCLayersIndices();
-    for (size_t i = 0; i < FCLayersIdx.size(); ++i) {
-        size_t layerIdx = FCLayersIdx[i];
-        updLayerWeights(layerIdx, layersWeightsGradients[i], alpha);
-    }
-}
+//MatrixType Model::updLayersWeights(std::vector<MatrixType> &layersWeightsGradients, double alpha) {
+//    std::vector<size_t> FCLayersIdx = getFCLayersIndices();
+//    for (size_t i = 0; i < FCLayersIdx.size(); ++i) {
+//        size_t layerIdx = FCLayersIdx[i];
+//        updLayerWeights(layerIdx, layersWeightsGradients[i], alpha);
+//    }
+//}
 
 void Model::setLayerWeights(size_t layerIdx, MatrixType &newWeights) {
     layerPtrs[layerIdx]->updateWeights(newWeights);
@@ -93,6 +93,10 @@ std::vector<MatrixType> Model::calculateBatchGradients(MatrixType &features, Mat
             batchGradients.emplace_back(layerPtrs[i - 1]->calculateGradientsWrtWeights(topDerivatives));
         }
     }
+
+    // reverse due to reverse order of gradients in backprop
+    //  relatively to layer indices
+    std::reverse(batchGradients.begin(), batchGradients.end());
 
     return batchGradients;
 }

@@ -34,17 +34,19 @@ int main() {
     labels << 1, 0, 0, 0;
 
     double alpha = 1;
-    size_t batchSize = 1;
+    size_t batchSize = 4;
     size_t numProcessors = 1;
 
 //    for (int i = 0; i < 10000; ++i) {
 //        model.trainBatch(features, labels, alpha);
 //    }
 
-    mpi::environment env;
-    mpi::communicator comm;
+//    mpi::environment env;
+//    mpi::communicator comm;
 
-    DistributedTrainer trainer{std::make_shared<Model>(model), batchSize, alpha, std::make_shared<mpi::communicator>(comm), numProcessors};
+//    DistributedTrainer trainer{std::make_shared<Model>(model), batchSize, alpha, std::make_shared<mpi::communicator>(comm), numProcessors};
+
+    Trainer trainer{std::make_shared<Model>(model), batchSize, alpha};
 
     trainer.trainDataset(features, labels, 10000);
 

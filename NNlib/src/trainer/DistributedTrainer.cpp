@@ -21,6 +21,7 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
     batchesNumbers.reserve(numProcessors);
 
     for (int s = 0; s < numberIterations; ++s) {
+        // subtract 1 because generates including max
         batchesNumbers = std::move(generateRandIntSeq(0, numBatches - 1, numProcessors));
 
         std::vector<std::vector<MatrixType>> allGradients;
@@ -28,9 +29,7 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
         for (size_t i = 0; i < numProcessors; ++i) {
             std::vector<MatrixType> batchGradients = std::move(model->calculateBatchGradients(batchesFeatures[batchesNumbers[i]],
                                                                                               batchesLabels[batchesNumbers[i]]));
-            // reverse due to reverse order of gradients in backprop
-            //  relatively to layer indices
-            std::reverse(batchGradients.begin(), batchGradients.end());
+
             allGradients.emplace_back(std::move(batchGradients));
         }
 
