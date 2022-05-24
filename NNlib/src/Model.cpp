@@ -34,15 +34,20 @@ void Model::trainBatch(MatrixType features, MatrixType labels, double alpha) {
     MatrixType topDerivatives =
             lossFunctionPtr->backPropagate(layersOutputs, labels);
     if (layerPtrs.back()->getLayerType() == Layer::LayerType::FC) {
+        MatrixType tempDerivatives = layerPtrs.back()->calculateGradientsWrtInputs(topDerivatives);
         layerPtrs.back()->updateWeights(layerPtrs.back()->getWeights() -
                                         alpha * layerPtrs.back()->calculateGradientsWrtWeights(topDerivatives));
+        topDerivatives = tempDerivatives;
+    } else {
+        topDerivatives = layerPtrs.back()->calculateGradientsWrtInputs(topDerivatives);
     }
-    for (size_t i = layerPtrs.size() - 1; i > 0; --i) {
-        topDerivatives = layerPtrs[i]->calculateGradientsWrtInputs(topDerivatives);
-        if (layerPtrs[i - 1]->getLayerType() == Layer::LayerType::FC) {
-            layerPtrs[i - 1]->updateWeights(layerPtrs[i - 1]->getWeights() -
-                                            alpha * layerPtrs[i - 1]->calculateGradientsWrtWeights(topDerivatives));
+    for (size_t i = layerPtrs.size() - 2; i > 0; --i) {
+        MatrixType tempDerivatives = layerPtrs[i]->calculateGradientsWrtInputs(topDerivatives);
+        if (layerPtrs[i]->getLayerType() == Layer::LayerType::FC) {
+            layerPtrs[i]->updateWeights(layerPtrs[i]->getWeights() -
+                                            alpha * layerPtrs[i]->calculateGradientsWrtWeights(topDerivatives));
         }
+        topDerivatives = tempDerivatives;
     }
 }
 
