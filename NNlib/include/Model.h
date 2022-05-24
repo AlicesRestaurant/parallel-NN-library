@@ -11,15 +11,19 @@
 #include <string>
 #include <memory>
 #include <cstddef>
+#include <boost/mpi.hpp>
+
+namespace mpi = boost::mpi;
 
 class Model {
 public:
-    Model(size_t numInputNodes, const std::shared_ptr<LossFunction>& lossFunctionPtr) : numInputNodes{numInputNodes},
-                                                                                   lossFunctionPtr{lossFunctionPtr}
-    {}
+    Model(size_t numInputNodes, const std::shared_ptr<LossFunction> &lossFunctionPtr) : numInputNodes{numInputNodes},
+                                                                                        lossFunctionPtr{
+                                                                                                lossFunctionPtr} {}
 
     Eigen::MatrixXd forwardPass(Eigen::MatrixXd input);
-    double calcLoss(const Eigen::MatrixXd& predictions, const Eigen::MatrixXd& groundTruths);
+
+    double calcLoss(const Eigen::MatrixXd &predictions, const Eigen::MatrixXd &groundTruths);
 
     template<class LayerType, class... Args>
     void addLayer(Args... args) {
@@ -27,15 +31,50 @@ public:
     }
 
     void trainExample(Eigen::VectorXd features, Eigen::VectorXd label, double alpha);
+
     void trainBatch(Eigen::MatrixXd features, Eigen::MatrixXd labels, double alpha);
 
-    friend std::ostream& operator<<(std::ostream &os, const Model &mlp);
+    void trainDataset(Eigen::MatrixXd features, Eigen::MatrixXd labels, int batchSize, int numberProcessors,
+                      int numberIterations, double alpha);
+
+    std::vector<Eigen::MatrixXd> calculateBatchGradients(Eigen::MatrixXd features, Eigen::MatrixXd labels);
+
+    static void setMPIExecution(bool mpiExec) {
+        mpiExecution = mpiExec;
+    }
+
+    static bool getMPIExecution() {
+        return mpiExecution;
+    }
+
+    static void setNumberProcessors(size_t nProcessors) {
+        numProcessors = nProcessors;
+    }
+
+    static size_t getNumberProcessors() {
+        return numProcessors;
+    }
+
+    static void setCommunicator(mpi::communicator c) {
+        comm = c;
+    }
+
+    static mpi::communicator &getCommunicator() {
+        return comm;
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Model &mlp);
+
 protected:
     std::vector<std::shared_ptr<Layer>> layerPtrs;
 
     std::shared_ptr<LossFunction> lossFunctionPtr;
 
     const size_t numInputNodes;
+
+    static bool mpiExecution;
+    static size_t numProcessors;
+    static mpi::communicator comm;
 };
 
 

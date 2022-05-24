@@ -31,7 +31,7 @@ std::ostream &operator<<(std::ostream &os, const MatrixD &matrix) {
     return os;
 }
 
-// Multiplication
+// Multiplication operator
 
 MatrixD operator*(const MatrixD &left, const MatrixD &right) {
     if (left.cols() != right.rows()) {
@@ -47,7 +47,7 @@ MatrixD primitiveMultiplication(const MatrixD &left, const MatrixD &right) {
     const MatrixD &mB = right;
     MatrixD mC(mA.rows(), mB.cols(), std::vector<double>(mA.rows() * mB.cols()));
 
-    size_t curNumOfProcs = MatrixD::getNumberProcessors();
+    size_t curNumOfProcs = MatrixD::getNumberThreads();
     if (curNumOfProcs > mA.rows()) {
         curNumOfProcs = mA.rows();
     }
@@ -111,12 +111,4 @@ bool operator!=(const MatrixD& left, const MatrixD& right) {
 // Parallel parameters
 
 bool MatrixD::parallelExecution = false;
-size_t MatrixD::numOfProcs = 6;
-
-void MatrixD::setParallelExecution(bool parExecution) {
-    parallelExecution = parExecution;
-}
-
-void MatrixD::setNumberProcessors(size_t numProcessors) {
-    numOfProcs = numProcessors;
-}
+size_t MatrixD::numThreads = 6;

@@ -46,7 +46,7 @@ int main() {
     MatrixD mB(mat_n, mat_n, vB);
     MatrixD mC(mat_m, mat_n, vC);
 
-    MatrixD::setNumberProcessors(6);
+    MatrixD::setNumberThreads(6);
 
     MatrixD::setParallelExecution(true);
 
