@@ -36,7 +36,7 @@ public:
 
     void trainBatch(MatrixType &features, MatrixType &labels, double alpha);
 
-    std::vector<MatrixType> calculateBatchGradients(MatrixType &features, MatrixType &labels);
+    std::vector<MatrixType> calculateBatchLayersGradients(MatrixType &features, MatrixType &labels);
 
     friend std::ostream &operator<<(std::ostream &os, const Model &mlp);
 

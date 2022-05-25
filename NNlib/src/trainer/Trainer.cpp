@@ -18,9 +18,11 @@ void Trainer::trainDataset(MatrixType features, MatrixType labels, int numberIte
         // generate random number
         int batchNumber = generateRandInt(0, numBatches-1);
 
+//        model->trainBatch(batchesFeatures[batchNumber], batchesLabels[batchNumber], learningRate);
+
         // do calculation
         std::vector<MatrixType> layersGradients(
-                std::move(model->calculateBatchGradients(batchesFeatures[batchNumber], batchesLabels[batchNumber])));
+                std::move(model->calculateBatchLayersGradients(batchesFeatures[batchNumber], batchesLabels[batchNumber])));
 
         // update
         for (size_t i = 0; i < FCLayersIdx.size(); ++i) {
@@ -42,7 +44,7 @@ std::vector<MatrixType> Trainer::splitMatrixInBatches(MatrixType &mat, size_t ba
     size_t startCol, endCol = 0;
     for (size_t i = 0; i < numBatches; i++) {
         startCol = endCol;
-        endCol += quotient + (i < remainder);
+        endCol += batchSize + (i < remainder);
 
         std::vector<size_t> rowsIdx(mat.rows());
         std::iota(rowsIdx.begin(), rowsIdx.end(), 0);

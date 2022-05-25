@@ -20,9 +20,11 @@ std::vector<int> generateRandIntSeq(int min, int max, int length) {
 
     while (batchesNumbers.size() != length) {
         batchesNumbers.emplace_back(generateRandInt(min, max)); // create new random number
-        std::sort(begin(batchesNumbers), end(batchesNumbers)); // sort before call to unique
-        auto last = std::unique(begin(batchesNumbers), end(batchesNumbers));
-        batchesNumbers.erase(last, end(batchesNumbers));       // erase duplicates
+        if (batchesNumbers.size() <= max - min + 1) {
+            std::sort(begin(batchesNumbers), end(batchesNumbers)); // sort before call to unique
+            auto last = std::unique(begin(batchesNumbers), end(batchesNumbers));
+            batchesNumbers.erase(last, end(batchesNumbers));       // erase duplicates
+        }
     }
 
     return batchesNumbers;

@@ -13,15 +13,12 @@
 namespace mpi = boost::mpi;
 
 int main() {
-    Model model{2, std::make_shared<MSELossFunction>()};
+    mpi::environment env;
+    mpi::communicator comm;
 
-    model.addLayer<FCLayer>(2, 2);
-    model.addLayer<SigmoidActivationLayer>(2);
-
-    model.addLayer<FCLayer>(1, 2);
-    model.addLayer<SigmoidActivationLayer>(1);
-
-    std::cout << "before train \n" << model << "\n";
+    if (comm.rank() == 0) {
+        //
+    }
 
     Eigen::MatrixXd features(4, 2);
     features << 0, 0,
@@ -34,35 +31,58 @@ int main() {
     labels << 1, 0, 0, 0;
 
     double alpha = 1;
-    size_t batchSize = 4;
-    size_t numProcessors = 1;
 
-//    for (int i = 0; i < 10000; ++i) {
-//        model.trainBatch(features, labels, alpha);
-//    }
+    size_t batchSize = 2;
+    int numberIters = 2000;
+    size_t numProcessors = comm.size();
 
-//    mpi::environment env;
-//    mpi::communicator comm;
+    if (comm.rank() == 0) {
+//        std::cout << "before train \n" << model << "\n";
 
-//    DistributedTrainer trainer{std::make_shared<Model>(model), batchSize, alpha, std::make_shared<mpi::communicator>(comm), numProcessors};
+        Model seqModel{2, std::make_shared<MSELossFunction>()};
 
-    Trainer trainer{std::make_shared<Model>(model), batchSize, alpha};
+        seqModel.addLayer<FCLayer>(2, 2);
+        seqModel.addLayer<SigmoidActivationLayer>(2);
 
-    trainer.trainDataset(features, labels, 10000);
+        seqModel.addLayer<FCLayer>(1, 2);
+        seqModel.addLayer<SigmoidActivationLayer>(1);
 
-    std::cout << "after train \n" << model << "\n";
+        Trainer seqTrainer{std::make_shared<Model>(seqModel), batchSize, alpha};
 
-    std::cout << "Features:" << std::endl;
-    std::cout << features << std::endl;
-    std::cout << std::endl;
+        seqTrainer.trainDataset(features, labels, numberIters);
 
-    std::cout << "Ground truth:" << std::endl;
-    std::cout << labels << std::endl;
-    std::cout << std::endl;
+        std::cout << "Seq model prediction:" << std::endl;
+        std::cout << seqModel.forwardPass(features) << std::endl;
+        std::cout << std::endl;
 
-    std::cout << "Prediction:" << std::endl;
-    std::cout << model.forwardPass(features) << std::endl;
-    std::cout << std::endl;
+//        std::cout << "after train \n" << model << "\n";
+    }
+
+    Model distModel{2, std::make_shared<MSELossFunction>()};
+
+    distModel.addLayer<FCLayer>(2, 2);
+    distModel.addLayer<SigmoidActivationLayer>(2);
+
+    distModel.addLayer<FCLayer>(1, 2);
+    distModel.addLayer<SigmoidActivationLayer>(1);
+
+    DistributedTrainer distTrainer{std::make_shared<Model>(distModel), batchSize, alpha, std::make_shared<mpi::communicator>(comm), numProcessors};
+
+    distTrainer.trainDataset(features, labels, numberIters);
+
+    if (comm.rank() == 0) {
+        std::cout << "Dist model prediction:" << std::endl;
+        std::cout << distModel.forwardPass(features) << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Features:" << std::endl;
+        std::cout << features << std::endl;
+        std::cout << std::endl;
+
+        std::cout << "Ground truth:" << std::endl;
+        std::cout << labels << std::endl;
+        std::cout << std::endl;
+    }
     
     return 0;
 }
