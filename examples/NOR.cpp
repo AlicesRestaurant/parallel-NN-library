@@ -16,19 +16,20 @@ int main() {
     mpi::environment env;
     mpi::communicator comm;
 
-    if (comm.rank() == 0) {
-        //
-    }
+    Eigen::MatrixXd features;
+    Eigen::MatrixXd labels;
 
-    Eigen::MatrixXd features(4, 2);
-    features << 0, 0,
+    if (comm.rank() == 0) {
+        features = Eigen::MatrixXd(4, 2);
+        features << 0, 0,
                 0, 1,
                 1, 0,
                 1, 1;
-    features.transposeInPlace();
+        features.transposeInPlace();
 
-    Eigen::MatrixXd labels(1, 4);
-    labels << 1, 0, 0, 0;
+        labels = Eigen::MatrixXd(1, 4);
+        labels << 1, 0, 0, 0;
+    }
 
     double alpha = 1;
 
