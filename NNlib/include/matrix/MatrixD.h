@@ -115,21 +115,21 @@ public:
 
     MatrixD cwiseProduct(const MatrixD &other) const {
         MatrixD resMat(*this);
-        resMat.cwiseProductImplace(other);
+        resMat.cwiseProductInPlace(other);
         return resMat;
     }
 
-    MatrixD &cwiseProductImplace(const MatrixD &other) {
-        this->cwiseBinaryOperation([] (double el1, double el2) {return el1 * el2;}, other);
+    MatrixD &cwiseProductInPlace(const MatrixD &other) {
+        this->cwiseBinaryOperationInPlace([] (double el1, double el2) {return el1 * el2;}, other);
         return *this;
     }
 
     template<class CustomOp> // TODO: add check for non matching dimentions
-    MatrixD &cwiseBinaryOperation(const CustomOp &operation, const MatrixD &other) {
+    MatrixD &cwiseBinaryOperationInPlace(const CustomOp &operation, const MatrixD &other) {
         for (size_t x = 0; x < this->nCols; ++x) {
             for (size_t y = 0; y < this->nRows; ++y) {
                 double &el = this->operator()(y, x);
-                el = operator()(el, other(y, x));
+                el = operation(el, other(y, x));
             }
         }
         return *this;

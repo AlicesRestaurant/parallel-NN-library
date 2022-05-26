@@ -175,3 +175,93 @@ TEST(MatrixTest, Transpose) {
                                                     103,
                                                     80}));
 }
+
+TEST(MatrixTest, CreatingMethods) {
+    MatrixD m = MatrixD::Constant(2, 3, 3.52);
+    MatrixD expected_m = MatrixD{{3.52, 3.52, 3.52},
+                                 {3.52, 3.52, 3.52}};
+    EXPECT_EQ(m, expected_m);
+
+    MatrixD m1 = MatrixD::Ones(2, 4);
+    MatrixD expected_m1 = MatrixD{{1, 1, 1, 1},
+                                  {1, 1, 1, 1}};
+    EXPECT_EQ(m1, expected_m1);
+
+    for (int n = 0; n < 10; ++n) {
+        MatrixD m2 = MatrixD::Ones(5, 1);
+        EXPECT_EQ(m2.rows(), 5);
+        EXPECT_EQ(m2.cols(), 1);
+        for (size_t i = 0; i < m2.rows(); ++i) {
+            for (size_t j = 0; j < m2.cols(); ++j) {
+                ASSERT_LE(m2(i, j), 1);
+                ASSERT_GE(m2(i, j), 0);
+            }
+        }
+    }
+}
+
+TEST(MatrixTest, Subblock) {
+    MatrixD m{{1, 2, 3},
+              {4, 5, 6},
+              {7, 8, 9},
+              {11, 12, 13}};
+    ASSERT_EQ(m.subblock(0, m.rows(), 0, m.cols()), m);
+
+    ASSERT_EQ(m.subblock(0, 1, 0, 1), MatrixD{{1}});
+
+    MatrixD s = m.subblock(1, 3, 1, 2);
+    MatrixD expected{{5},
+                     {8}};
+    ASSERT_EQ(s, expected);
+}
+
+TEST(MatrixTest, CwiseProduct) {
+    MatrixD m1{{1, 2, 3},
+               {4, 5, 6}};
+    MatrixD m2{{1, 0, 0},
+               {1, 1, 1}};
+    MatrixD res{{1, 0, 0},
+                {4, 5, 6}};
+    EXPECT_EQ(m1.cwiseProduct(m2), res);
+}
+
+TEST(MatrixTest, CwiseProductInPlace) {
+    MatrixD m1{{-1, 2}, {5, 6}};
+    MatrixD m2{{1, 0}, {1, 1}};
+    m1.cwiseProductInPlace(m2);
+    MatrixD res{{-1, 0}, {5, 6}};
+    EXPECT_EQ(m1, res);
+}
+
+TEST(MatrixTest, CwiseBinaryOperationInPlace) {
+    MatrixD m1{{-1, 2, 1}, {1, 5, 6}};
+    MatrixD m2{{1, 0, 5}, {1, 1, 1}};
+    MatrixD res{{-1, 1, -2}, {0, 2, 2.5}};
+    m1.cwiseBinaryOperationInPlace([] (double e1, double e2) {return (e1 - e2) / 2;}, m2);
+    EXPECT_EQ(m1, res);
+}
+
+TEST(MatrixTest, unaryExprInPlace) {
+    MatrixD m1{{-1, 2, 1}, {1, 5, 6}};
+    MatrixD res{{-1, 8, 1}, {1, 125, 216}};
+    EXPECT_EQ(m1.unaryExpr([] (double x) {return x*x*x;}), res);
+    EXPECT_EQ(m1.unaryExprInPlace([] (double x) {return x*x*x;}), res);
+}
+
+TEST(MatrixTest, ArithmeticOperators) {
+    MatrixD m1{{-1, 2, 1}, {1, 5, 6}};
+    MatrixD res{{0, 3, 2}, {2, 6, 7}};
+    EXPECT_EQ(m1 + 1, res);
+    EXPECT_EQ(m1 + 0.5, res - 0.5);
+    EXPECT_EQ((m1 + res) / 2 + (res - m1) / 2, res);
+}
+
+TEST(MatrixTest, Aggregate) {
+    MatrixD m1{{1}};
+    EXPECT_EQ(m1.sum(), 1);
+    MatrixD m2{{1, 2}};
+    EXPECT_EQ(m2.sum(), 3);
+    MatrixD m3{{1, 2},
+               {-1, -2}};
+    EXPECT_EQ(m3.sum(), 0);
+}
