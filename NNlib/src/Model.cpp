@@ -80,6 +80,10 @@ void Model::trainBatch(const MatrixType &features, const MatrixType &labels, dou
         }
         topDerivatives = tempDerivatives;
     }
+    if (layerPtrs.front()->getLayerType() == Layer::LayerType::FC) {
+        layerPtrs.front()->updateWeights(layerPtrs.front()->getWeights() -
+                                    alpha * layerPtrs.front()->calculateGradientsWrtWeights(topDerivatives));
+    }
 }
 
 std::vector<MatrixType> Model::calculateBatchLayersGradients(MatrixType &features, MatrixType &labels) {

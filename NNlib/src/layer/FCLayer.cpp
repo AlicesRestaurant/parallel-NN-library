@@ -26,13 +26,14 @@ MatrixType FCLayer::forwardPropagate(const MatrixType &inputs) {
     inputsWithBias << MatrixType::Ones(1, inputs.cols()), inputs;
     layerInputs = inputsWithBias;
 #else
-    for (size_t i = 0; i < layerInputs.rows(); ++i) {
-        layerInputs(i, 0) = 1;
+    layerInputs = MatrixType(inputs.rows() + 1, inputs.cols());
+    for (size_t i = 0; i < layerInputs.cols(); ++i) {
+        layerInputs(0, i) = 1;
     }
 
     for (size_t i = 1; i < layerInputs.rows(); ++i) {
         for (size_t j = 0; j < layerInputs.cols(); ++j) {
-            layerInputs(i, j) = inputs(i, j - 1);
+            layerInputs(i, j) = inputs(i - 1, j);
         }
     }
 #endif

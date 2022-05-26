@@ -111,6 +111,10 @@ TEST(MatrixTest, Transpose) {
     MatrixD mB(4, 4, v2);
     MatrixD mC(1, 4, v3);
     mA.transposeInPlace();
+    mA.transposeInPlace();
+    mA.transposeInPlace();
+    mB.transposeInPlace();
+    mC.transposeInPlace();
     EXPECT_EQ(mA.rows(), 4);
     EXPECT_EQ(mA.cols(), 5);
     EXPECT_EQ(mB.rows(), 4);
@@ -121,7 +125,7 @@ TEST(MatrixTest, Transpose) {
     EXPECT_EQ(mA, mA.transposeInPlace().transposeInPlace());
     EXPECT_EQ(mB, mB.transposeInPlace().transposeInPlace());
     EXPECT_EQ(mC, mC.transposeInPlace().transposeInPlace());
-    EXPECT_EQ(mA, MatrixD(5, 4, std::vector<double>{1, 1, 1, 1, 7,
+    EXPECT_EQ(mA, MatrixD(4, 5, std::vector<double>{1, 1, 1, 1, 7,
                                             5, 3, 3, 2, 2,
                                             8, 7, 4, 7, 3,
                                             6, 6, 6, 6, 4}));
@@ -129,7 +133,7 @@ TEST(MatrixTest, Transpose) {
                                                     3, 3, 1, 2,
                                                     8, 9, 1, 7,
                                                     6, 6, 1, 6}));
-    EXPECT_EQ(mB, MatrixD(4, 1, std::vector<double>{120,
+    EXPECT_EQ(mC, MatrixD(4, 1, std::vector<double>{20,
                                                     38,
                                                     103,
                                                     80}));

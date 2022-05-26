@@ -46,7 +46,7 @@ target_link_libraries("${LIBRARY_NAME}" Eigen3::Eigen)
 
 # Link MPI with library
 find_package(MPI REQUIRED)
-target_include_directories(${LIBRARY_NAME} PRIVATE ${MPI_CXX_INCLUDE_PATH})
+target_include_directories(${LIBRARY_NAME} PUBLIC ${MPI_CXX_INCLUDE_PATH})
 target_link_libraries(${LIBRARY_NAME} ${MPI_CXX_LIBRARIES})
 
 find_package(Boost 1.71.0 COMPONENTS mpi serialization REQUIRED)

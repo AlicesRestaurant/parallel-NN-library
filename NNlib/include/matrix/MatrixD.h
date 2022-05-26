@@ -21,7 +21,7 @@ public:
     static bool parallelExecution;
     static size_t numThreads;
 
-    MatrixD() {}
+    MatrixD() = default;
     MatrixD(size_t nRows, size_t nCols) : nRows(nRows), nCols(nCols), data(nRows * nCols) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
@@ -62,11 +62,13 @@ public:
     }
 
     MatrixD &transposeInPlace() {
+        std::vector<double> new_data(nRows * nCols);
         for (size_t i = 0; i < nRows; ++i) {
             for (size_t j = 0; j < nCols; ++j) {
-                std::swap(data[j * nCols + i], this->operator()(i, j));
+                new_data[j * nRows + i] = this->operator()(i, j);
             }
         }
+        data = std::move(new_data);
         std::swap(nRows, nCols);
         return *this;
     }
@@ -77,9 +79,9 @@ public:
     }
 
     MatrixD subblock(size_t startRow, size_t endRow, size_t startCol, size_t endCol) const {
-        assert(startRow < endRow);
-        assert(startCol < endCol);
-        MatrixD res{endRow - startRow, startCol - endCol};
+        assert(startRow < endRow && endRow <= nRows);
+        assert(startCol < endCol && endCol <= nCols);
+        MatrixD res{endRow - startRow, endCol - startCol};
         for (size_t i = 0; i < res.nRows; ++i) {
             for (size_t j = 0; j < res.nCols; ++j) {
                 res(i, j) = this->operator()(startRow + i, startCol + j);
@@ -213,7 +215,7 @@ MatrixD cwiseBinaryOperation(const CustomOp &operation, const MatrixD &mat1, con
     MatrixD resMat(mat1.rows(), mat1.cols());
     for (size_t x = 0; x < mat1.cols(); ++x) {
         for (size_t y = 0; y < mat1.rows(); ++y) {
-            resMat(x, y) = operation(mat1(y, x), mat2(y, x));
+            resMat(y, x) = operation(mat1(y, x), mat2(y, x));
         }
     }
     return resMat;
