@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <Model.h>
-//#include <lossfunction/MSELossFunction.h>
-#include <lossfunction/SoftMaxLossFunction.h>
+#include <lossfunction/MSELossFunction.h>
 #include <matrix/MatrixD.h>
 
 #include <memory>
@@ -13,9 +12,9 @@ TEST(TestSuiteName, TestName) {
     EXPECT_EQ(1 + 1, 2);
 }
 
-//TEST(ModelTest, Xor) {
-//    Model model{2, std::make_shared<MSELossFunction>()};
-//}
+TEST(ModelTest, Xor) {
+    Model model{2, std::make_shared<MSELossFunction>()};
+}
 
 //TEST(LossTest, SoftMaxLossFunctionTest) {
 //    using Eigen::MatrixXd;
@@ -52,6 +51,44 @@ TEST(MatrixTest, Constructor) {
     ASSERT_EQ(m2, m3);
 
     ASSERT_NE(MatrixD(1, 1), m2);
+
+
+    MatrixD m4{{1}};
+    MatrixD m5{{1, 2}};
+    MatrixD m6{{3}, {4}};
+    MatrixD m7{{1, 2}, {3, 4}};
+    MatrixD m8{};
+
+    EXPECT_EQ(m4.rows(), 1);
+    EXPECT_EQ(m4.cols(), 1);
+    EXPECT_EQ(m5.rows(), 1);
+    EXPECT_EQ(m5.cols(), 2);
+    EXPECT_EQ(m6.rows(), 2);
+    EXPECT_EQ(m6.cols(), 1);
+    EXPECT_EQ(m7.rows(), 2);
+    EXPECT_EQ(m7.cols(), 2);
+    EXPECT_EQ(m8.rows(), 0);
+    EXPECT_EQ(m8.cols(), 0);
+
+    MatrixD m9{{}, {}}; // reduces to {}
+    EXPECT_EQ(m9.rows(), 0);
+    EXPECT_EQ(m9.rows(), 0);
+
+    EXPECT_EQ(m4(0, 0), 1);
+
+    EXPECT_EQ(m5(0, 0), 1);
+    EXPECT_EQ(m5(0, 1), 2);
+
+    EXPECT_EQ(m6(0, 0), 3);
+    EXPECT_EQ(m6(1, 0), 4);
+
+    EXPECT_EQ(m7(0, 0), 1);
+    EXPECT_EQ(m7(0, 1), 2);
+    EXPECT_EQ(m7(1, 0), 3);
+    EXPECT_EQ(m7(1, 1), 4);
+
+    EXPECT_EQ(m8, MatrixD());
+    EXPECT_EQ(m9, MatrixD());
 }
 
 TEST(MatrixTest, Multiplication_1) {

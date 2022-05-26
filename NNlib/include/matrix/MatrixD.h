@@ -15,6 +15,7 @@
 #include <cstdlib> // std::rand()
 #include <iostream>
 #include <utility> // std::move, std::swap
+#include <initializer_list>
 
 class MatrixD {
 public:
@@ -26,6 +27,26 @@ public:
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
     MatrixD(size_t nRows, size_t nCols, double val) : nRows(nRows), nCols(nCols), data(nRows * nCols, val) {}
+    MatrixD(std::initializer_list<std::initializer_list<double>> l) {
+        if (l.size() == 0) {
+            nRows = nCols = 0;
+            return;
+        }
+        size_t listNumCols = (*(l.begin())).size();
+        for (const auto &innerList : l) {
+            assert(innerList.size() == listNumCols);
+        }
+        if (listNumCols == 0) {
+            nRows = nCols = 0;
+            return;
+        }
+        nRows = l.size();
+        nCols = listNumCols;
+        data.reserve(nRows * nCols);
+        for (const auto &innerList : l) {
+            data.insert(data.end(), innerList);
+        }
+    }
 
     static MatrixD Random(size_t nRows, size_t nCols) {
         MatrixD res(nRows, nCols);
