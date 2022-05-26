@@ -14,7 +14,7 @@
 #include <cstddef> // size_t
 #include <cstdlib> // std::rand()
 #include <iostream>
-#include <utility> // std::move
+#include <utility> // std::move, std::swap
 
 class MatrixD {
 public:
@@ -64,9 +64,10 @@ public:
     MatrixD &transposeInPlace() {
         for (size_t i = 0; i < nRows; ++i) {
             for (size_t j = 0; j < nCols; ++j) {
-                this->operator()(j, i) = this->operator()(i, j);
+                std::swap(data[j * nCols + i], this->operator()(i, j));
             }
         }
+        std::swap(nRows, nCols);
         return *this;
     }
 

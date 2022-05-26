@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <Model.h>
-#include <lossfunction/MSELossFunction.h>
+//#include <lossfunction/MSELossFunction.h>
 #include <lossfunction/SoftMaxLossFunction.h>
 #include <matrix/MatrixD.h>
 
@@ -13,22 +13,22 @@ TEST(TestSuiteName, TestName) {
     EXPECT_EQ(1 + 1, 2);
 }
 
-TEST(ModelTest, Xor) {
-    Model model{2, std::make_shared<MSELossFunction>()};
-}
+//TEST(ModelTest, Xor) {
+//    Model model{2, std::make_shared<MSELossFunction>()};
+//}
 
-TEST(LossTest, SoftMaxLossFunctionTest) {
-    using Eigen::MatrixXd;
-    SoftMaxLossFunction loss;
-    double actual = loss.forwardPropagate(MatrixXd{{2, 3},
-                                                   {1, -3}},
-                                          MatrixXd{{0, 1},
-                                                   {1, 0}});
-    using std::exp, std::log;
-    double expected = - 1.0 / 2 * (log(exp(1) / (exp(2) + exp(1))) +
-            log(exp(3) / (exp(3) + exp(-3))));
-    EXPECT_DOUBLE_EQ(actual, expected);
-}
+//TEST(LossTest, SoftMaxLossFunctionTest) {
+//    using Eigen::MatrixXd;
+//    SoftMaxLossFunction loss;
+//    double actual = loss.forwardPropagate(MatrixXd{{2, 3},
+//                                                   {1, -3}},
+//                                          MatrixXd{{0, 1},
+//                                                   {1, 0}});
+//    using std::exp, std::log;
+//    double expected = - 1.0 / 2 * (log(exp(1) / (exp(2) + exp(1))) +
+//            log(exp(3) / (exp(3) + exp(-3))));
+//    EXPECT_DOUBLE_EQ(actual, expected);
+//}
 
 TEST(MatrixTest, Constructor) {
     MatrixD m1{3, 2};
@@ -94,4 +94,43 @@ TEST(MatrixTest, Multiplication_3) {
     MatrixD mB(2, 1, std::move(v2));
     MatrixD mC(1, 1, std::move(v3));
     EXPECT_EQ(mA * mB, mC);
+}
+
+TEST(MatrixTest, Transpose) {
+    std::vector<double> v1{1, 5, 8, 6,
+                           1, 3, 7, 6,
+                           1, 3, 4, 6,
+                           1, 2, 7, 6,
+                           7, 2, 3, 4};
+    std::vector<double> v2{1, 3, 8, 6,
+                           1, 3, 9, 6,
+                           1, 1, 1, 1,
+                           1, 2, 7, 6};
+    std::vector<double> v3{20, 38, 103, 80};
+    MatrixD mA(5, 4, v1);
+    MatrixD mB(4, 4, v2);
+    MatrixD mC(1, 4, v3);
+    mA.transposeInPlace();
+    EXPECT_EQ(mA.rows(), 4);
+    EXPECT_EQ(mA.cols(), 5);
+    EXPECT_EQ(mB.rows(), 4);
+    EXPECT_EQ(mB.cols(), 4);
+    EXPECT_EQ(mC.rows(), 4);
+    EXPECT_EQ(mC.cols(), 1);
+
+    EXPECT_EQ(mA, mA.transposeInPlace().transposeInPlace());
+    EXPECT_EQ(mB, mB.transposeInPlace().transposeInPlace());
+    EXPECT_EQ(mC, mC.transposeInPlace().transposeInPlace());
+    EXPECT_EQ(mA, MatrixD(5, 4, std::vector<double>{1, 1, 1, 1, 7,
+                                            5, 3, 3, 2, 2,
+                                            8, 7, 4, 7, 3,
+                                            6, 6, 6, 6, 4}));
+    EXPECT_EQ(mB, MatrixD(4, 4, std::vector<double>{1, 1, 1, 1,
+                                                    3, 3, 1, 2,
+                                                    8, 9, 1, 7,
+                                                    6, 6, 1, 6}));
+    EXPECT_EQ(mB, MatrixD(4, 1, std::vector<double>{120,
+                                                    38,
+                                                    103,
+                                                    80}));
 }
