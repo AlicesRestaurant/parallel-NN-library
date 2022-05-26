@@ -51,7 +51,7 @@ public:
     static MatrixD Random(size_t nRows, size_t nCols) {
         MatrixD res(nRows, nCols);
         for (size_t i = 0; i < res.data.size(); ++i) {
-            res.data[i] = static_cast<double>(std::rand()) / RAND_MAX;
+            res.data[i] = static_cast<double>(std::rand()) / RAND_MAX * 2 - 1;
         }
         return res;
     }
