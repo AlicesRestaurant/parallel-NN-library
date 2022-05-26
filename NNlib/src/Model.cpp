@@ -64,21 +64,13 @@ void Model::trainBatch(const MatrixType &features, const MatrixType &labels, dou
     MatrixType layersOutputs = forwardPass(features);
     MatrixType topDerivatives =
             lossFunctionPtr->backPropagate(layersOutputs, labels);
-    if (layerPtrs.back()->getLayerType() == Layer::LayerType::FC) {
-        MatrixType tempDerivatives = layerPtrs.back()->calculateGradientsWrtInputs(topDerivatives);
-        layerPtrs.back()->updateWeights(layerPtrs.back()->getWeights() -
-                                        alpha * layerPtrs.back()->calculateGradientsWrtWeights(topDerivatives));
-        topDerivatives = tempDerivatives;
-    } else {
-        topDerivatives = layerPtrs.back()->calculateGradientsWrtInputs(topDerivatives);
-    }
-    for (size_t i = layerPtrs.size() - 2; i > 0; --i) {
+    for (size_t i = layerPtrs.size() - 1; i > 0; --i) {
         MatrixType tempDerivatives = layerPtrs[i]->calculateGradientsWrtInputs(topDerivatives);
         if (layerPtrs[i]->getLayerType() == Layer::LayerType::FC) {
             layerPtrs[i]->updateWeights(layerPtrs[i]->getWeights() -
                                             alpha * layerPtrs[i]->calculateGradientsWrtWeights(topDerivatives));
         }
-        topDerivatives = tempDerivatives;
+        topDerivatives = std::move(tempDerivatives);
     }
     if (layerPtrs.front()->getLayerType() == Layer::LayerType::FC) {
         layerPtrs.front()->updateWeights(layerPtrs.front()->getWeights() -
