@@ -1,6 +1,8 @@
 #ifndef NNLIB_AND_TEST_EXAMPLE_MATRIXTYPE_H
 #define NNLIB_AND_TEST_EXAMPLE_MATRIXTYPE_H
 
+#include "MatrixD.h"
+
 #include <Eigen/Core>
 #include <boost/mpi.hpp>
 #include <boost/serialization/serialization.hpp>
@@ -9,10 +11,13 @@
 
 namespace mpi = boost::mpi;
 
-#define USE_EIGEN
-//#define USE_CUSTOM
+//#define USE_EIGEN
 
+#ifdef USE_EIGEN
 typedef Eigen::MatrixXd MatrixType;
+#else
+typedef MatrixD MatrixType;
+#endif
 
 // Customization of boost
 

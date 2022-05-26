@@ -7,17 +7,31 @@
 #include <layer/FCLayer.h>
 #include <layer/SigmoidActivationLayer.h>
 #include <Eigen/Dense>
-
-using DynMatrix = Eigen::MatrixXd;
-using DynVector = Eigen::VectorXd;
+#include <matrix/MatrixType.h>
 
 int main() {
     //create batch
-    DynMatrix features(2, 4);
+    MatrixType features(2, 4);
+    MatrixType labels(4, 1);
+#ifdef USE_EIGEN
     features << 0, 0, 1, 1,
             0, 1, 0, 1;
-    DynVector labels(4);
     labels << 0, 1, 1, 0;
+#else
+    features(0, 0) = 0;
+    features(0, 1) = 0;
+    features(0, 2) = 1;
+    features(0, 3) = 1;
+    features(1, 0) = 0;
+    features(1, 1) = 1;
+    features(1, 2) = 0;
+    features(1, 3) = 1;
+
+    labels(0, 0) = 0;
+    labels(1, 0) = 1;
+    labels(2, 0) = 1;
+    labels(3, 0) = 0;
+#endif
 
     srand((unsigned int) 2);
 

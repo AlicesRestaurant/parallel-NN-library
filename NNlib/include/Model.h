@@ -34,7 +34,7 @@ public:
     void setLayerWeights(size_t layerIdx, MatrixType &newWeights);
     MatrixType getLayerWeights(size_t layerIdx);
 
-    void trainBatch(MatrixType &features, MatrixType &labels, double alpha);
+    void trainBatch(const MatrixType &features, const MatrixType &labels, double alpha);
 
     std::vector<MatrixType> calculateBatchLayersGradients(MatrixType &features, MatrixType &labels);
 

@@ -12,6 +12,7 @@
 #include <vector>
 #include <stdexcept>
 #include <cstddef> // size_t
+#include <cstdlib> // std::rand()
 #include <iostream>
 #include <utility> // std::move
 
@@ -20,9 +21,27 @@ public:
     static bool parallelExecution;
     static size_t numThreads;
 
+    MatrixD() {}
     MatrixD(size_t nRows, size_t nCols) : nRows(nRows), nCols(nCols), data(nRows * nCols) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
     MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
+    MatrixD(size_t nRows, size_t nCols, double val) : nRows(nRows), nCols(nCols), data(nRows * nCols, val) {}
+
+    static MatrixD Random(size_t nRows, size_t nCols) {
+        MatrixD res(nRows, nCols);
+        for (size_t i = 0; i < res.data.size(); ++i) {
+            res.data[i] = static_cast<double>(std::rand()) / RAND_MAX;
+        }
+        return res;
+    }
+
+    static MatrixD Constant(size_t nRows, size_t nCols, double val) {
+        return MatrixD(nRows, nCols, val);
+    }
+
+    static MatrixD Ones(size_t nRows, size_t nCols) {
+        return Constant(nRows, nCols, 1);
+    }
 
     // data is in row-major way
     double operator()(size_t i, size_t j) const {
@@ -37,9 +56,40 @@ public:
         return data[nCols * i + j];
     }
 
+    MatrixD row(size_t row) const {
+        assert(row < nRows);
+        return MatrixD(1, nCols, std::vector<double>(data.begin() + row * nCols, data.begin() + (row + 1) * (nCols)));
+    }
+
+    MatrixD &transposeInPlace() {
+        for (size_t i = 0; i < nRows; ++i) {
+            for (size_t j = 0; j < nCols; ++j) {
+                this->operator()(j, i) = this->operator()(i, j);
+            }
+        }
+        return *this;
+    }
+
+    MatrixD transpose() const {
+        MatrixD res(*this);
+        return res.transposeInPlace();
+    }
+
+    MatrixD subblock(size_t startRow, size_t endRow, size_t startCol, size_t endCol) const {
+        assert(startRow < endRow);
+        assert(startCol < endCol);
+        MatrixD res{endRow - startRow, startCol - endCol};
+        for (size_t i = 0; i < res.nRows; ++i) {
+            for (size_t j = 0; j < res.nCols; ++j) {
+                res(i, j) = this->operator()(startRow + i, startCol + j);
+            }
+        }
+        return res;
+    }
+
     MatrixD operator()(const std::vector<size_t> &rowsIndices, const std::vector<size_t> &colsIndices);
 
-    MatrixD cwiseProduct(const MatrixD &other) {
+    MatrixD cwiseProduct(const MatrixD &other) const {
         MatrixD resMat(*this);
         resMat.cwiseProductImplace(other);
         return resMat;
@@ -80,6 +130,17 @@ public:
         return copyMatrix;
     }
 
+    MatrixD &operator+=(double scalar) {
+        this->unaryExprInPlace([scalar] (double el) {
+            return el + scalar;
+        });
+        return *this;
+    }
+
+    MatrixD &operator-=(double scalar) {
+        return (*this) += -scalar;
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix);
 
     size_t rows() const {
@@ -88,6 +149,16 @@ public:
 
     size_t cols() const {
         return nCols;
+    }
+
+    double sum() {
+        double summ = 0;
+        for (size_t i = 0; i < this->nRows; ++i) {
+            for (size_t j = 0; j < this->nCols; ++j) {
+                summ += this->operator()(i, j);
+            }
+        }
+        return summ;
     }
 
     static void setParallelExecution(bool parExecution) {
@@ -125,8 +196,11 @@ void rowsMatrixMultiplication(size_t startRow, size_t endRow, const MatrixD &A, 
 
 MatrixD operator+(const MatrixD &left, const MatrixD &right);
 MatrixD operator-(const MatrixD &left, const MatrixD &right);
+MatrixD operator+(const MatrixD &left, double scalar);
+MatrixD operator-(const MatrixD &left, double scalar);
 MatrixD operator*(double scalar, const MatrixD &mat);
 MatrixD operator/(double scalar, const MatrixD &mat);
+MatrixD operator/(const MatrixD &mat, double scalar);
 
 MatrixD operator*(const MatrixD &left, const MatrixD &right);
 

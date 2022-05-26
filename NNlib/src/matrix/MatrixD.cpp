@@ -39,11 +39,24 @@ MatrixD operator+(const MatrixD &left, const MatrixD &right) {
 MatrixD operator-(const MatrixD &left, const MatrixD &right) {
     return cwiseBinaryOperation([] (auto l, auto r) {return l - r;}, left, right);
 }
+MatrixD operator+(const MatrixD &left, double scalar) {
+    MatrixD res{left};
+    res += scalar;
+    return res;
+}
+MatrixD operator-(const MatrixD &left, double scalar) {
+    MatrixD res{left};
+    res -= scalar;
+    return res;
+}
 MatrixD operator*(double scalar, const MatrixD &mat) {
     return mat.unaryExpr([scalar] (double el) -> double {return scalar * el;});
 }
 MatrixD operator/(double scalar, const MatrixD &mat) {
     return mat.unaryExpr([scalar] (double el) -> double {return scalar / el;});
+}
+MatrixD operator/(const MatrixD &mat, double scalar) {
+    return mat.unaryExpr([scalar] (double el) -> double {return el / scalar;});
 }
 
 // Matrix-Matrix Multiplication

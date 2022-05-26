@@ -6,23 +6,24 @@
 #define NNLIB_AND_TEST_EXAMPLE_ACTIVATIONLAYER_H
 
 #include "layer/Layer.h"
+#include "matrix/MatrixType.h"
 
 class ActivationLayer : public Layer {
 public:
     ActivationLayer(int nodesNumber);
 
-    Eigen::MatrixXd forwardPropagate(const Eigen::MatrixXd &bottomData) override;
+    MatrixType forwardPropagate(const MatrixType &bottomData) override;
 
-    Eigen::MatrixXd calculateGradientsWrtInputs(const Eigen::MatrixXd &topDerivatives) override;
-    Eigen::MatrixXd calculateGradientsWrtWeights(const Eigen::MatrixXd &topDerivatives) override;
+    MatrixType calculateGradientsWrtInputs(const MatrixType &topDerivatives) override;
+    MatrixType calculateGradientsWrtWeights(const MatrixType &topDerivatives) override;
 
-    void updateWeights(const Eigen::MatrixXd &newWeights) override;
-    Eigen::MatrixXd getWeights() const override;
+    void updateWeights(const MatrixType &newWeights) override;
+    MatrixType getWeights() const override;
 
 protected:
-    virtual Eigen::MatrixXd calculateActivations(const Eigen::MatrixXd &inputs) = 0;
+    virtual MatrixType calculateActivations(const MatrixType &inputs) = 0;
 
-    virtual Eigen::MatrixXd calculateDerivatives(const Eigen::MatrixXd &topDerivatives) = 0;
+    virtual MatrixType calculateDerivatives(const MatrixType &topDerivatives) = 0;
 };
 
 #endif //NNLIB_AND_TEST_EXAMPLE_ACTIVATIONLAYER_H

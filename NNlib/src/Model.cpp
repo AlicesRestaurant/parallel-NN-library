@@ -60,8 +60,7 @@ double Model::calcLoss(const MatrixType &predictions, const MatrixType &groundTr
 
 
 // Training
-
-void Model::trainBatch(MatrixType &features, MatrixType &labels, double alpha) {
+void Model::trainBatch(const MatrixType &features, const MatrixType &labels, double alpha) {
     MatrixType layersOutputs = forwardPass(features);
     MatrixType topDerivatives =
             lossFunctionPtr->backPropagate(layersOutputs, labels);

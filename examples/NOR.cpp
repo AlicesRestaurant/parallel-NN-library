@@ -3,6 +3,7 @@
 #include <layer/FCLayer.h>
 #include <layer/SigmoidActivationLayer.h>
 #include "trainer/DistributedTrainer.h"
+#include "matrix/MatrixType.h"
 
 #include <Eigen/Core>
 #include <boost/mpi.hpp>
@@ -16,19 +17,22 @@ int main() {
     mpi::environment env;
     mpi::communicator comm;
 
-    Eigen::MatrixXd features;
-    Eigen::MatrixXd labels;
+    MatrixType features;
+    MatrixType labels;
 
     if (comm.rank() == 0) {
-        features = Eigen::MatrixXd(4, 2);
+        features = MatrixType(4, 2);
+        labels = MatrixType(1, 4);
+#ifdef USE_EIGEN
         features << 0, 0,
                 0, 1,
                 1, 0,
                 1, 1;
-        features.transposeInPlace();
-
-        labels = Eigen::MatrixXd(1, 4);
         labels << 1, 0, 0, 0;
+#else
+
+#endif
+        features.transposeInPlace();
     }
 
     double alpha = 1;

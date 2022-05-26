@@ -3,13 +3,11 @@
 //
 
 #include "layer/ActivationLayer.h"
-
 #include "layer/Layer.h"
+#include "matrix/MatrixType.h"
 
 #include <Eigen/Dense>
 
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
 
 // Initialization
 
@@ -19,7 +17,7 @@ Layer(nodesNumber, Layer::LayerType::Activation) {}
 
 // Forward propagation
 
-MatrixXd ActivationLayer::forwardPropagate(const MatrixXd &inputs) {
+MatrixType ActivationLayer::forwardPropagate(const MatrixType &inputs) {
     layerInputs = inputs;
     return calculateActivations(inputs);
 }
@@ -27,20 +25,20 @@ MatrixXd ActivationLayer::forwardPropagate(const MatrixXd &inputs) {
 // Backward propagation
 
 
-Eigen::MatrixXd ActivationLayer::calculateGradientsWrtInputs(const MatrixXd &topDerivatives) {
+MatrixType ActivationLayer::calculateGradientsWrtInputs(const MatrixType &topDerivatives) {
     return calculateDerivatives(topDerivatives);
 }
 
-Eigen::MatrixXd ActivationLayer::calculateGradientsWrtWeights(const MatrixXd &topDerivatives) {
-    return {};
+MatrixType ActivationLayer::calculateGradientsWrtWeights(const MatrixType &topDerivatives) {
+    return MatrixType();
 }
 
 // Weights
 
-void ActivationLayer::updateWeights(const MatrixXd &newWeights) {
+void ActivationLayer::updateWeights(const MatrixType &newWeights) {
 }
 
-MatrixXd ActivationLayer::getWeights() const {
+MatrixType ActivationLayer::getWeights() const {
     return {};
 }
 

@@ -14,17 +14,19 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
         NNlib/src/MLP.cpp NNlib/include/MLP.h
         NNlib/src/lossfunction/LossFunction.cpp NNlib/include/lossfunction/LossFunction.h
         NNlib/src/lossfunction/MSELossFunction.cpp NNlib/include/lossfunction/MSELossFunction.h
-        NNlib/src/regularization/Regularization.cpp NNlib/include/regularization/Regularization.h
-        NNlib/src/regularization/NoRegularization.cpp NNlib/include/regularization/NoRegularization.h
-        NNlib/src/regularization/L2Regularization.cpp NNlib/include/regularization/L2Regularization.h
-        NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h
+#        NNlib/src/regularization/Regularization.cpp NNlib/include/regularization/Regularization.h
+#        NNlib/src/regularization/NoRegularization.cpp NNlib/include/regularization/NoRegularization.h
+#        NNlib/src/regularization/L2Regularization.cpp NNlib/include/regularization/L2Regularization.h
+#        NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h
         NNlib/include/layer/FCLayer.h NNlib/src/layer/FCLayer.cpp
         NNlib/include/layer/ActivationLayer.h NNlib/src/layer/ActivationLayer.cpp
-        NNlib/src/layer/HTActivationLayer.cpp NNlib/include/layer/HTActivationLayer.h
-        NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
+#        NNlib/src/layer/HTActivationLayer.cpp NNlib/include/layer/HTActivationLayer.h
+#        NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
         NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h
-        NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h NNlib/src/matrix/MatrixD.cpp NNlib/include/matrix/MatrixD.h
-        NNlib/include/matrix/MatrixType.h NNlib/include/utils/random.h NNlib/src/utils/random.cpp NNlib/src/trainer/Trainer.cpp NNlib/include/trainer/Trainer.h
+#        NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h
+        NNlib/src/matrix/MatrixD.cpp NNlib/include/matrix/MatrixD.h
+        NNlib/include/matrix/MatrixType.h NNlib/include/utils/random.h NNlib/src/utils/random.cpp
+        NNlib/src/trainer/Trainer.cpp NNlib/include/trainer/Trainer.h
         NNlib/src/trainer/DistributedTrainer.cpp NNlib/include/trainer/DistributedTrainer.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
 #if(MSVC)
