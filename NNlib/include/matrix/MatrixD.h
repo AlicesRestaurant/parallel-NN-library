@@ -58,7 +58,7 @@ public:
 
     ViewOfData() = default;
     ViewOfData(const std::shared_ptr<Container> &cPtr): dataPtr(cPtr), start(0), step(1), nSteps(cPtr->size()) {}
-    ViewOfData(const Container &c, size_t start, size_t step, size_t nSteps): dataPtr(std::make_shared(std::move(c))),
+    ViewOfData(const Container &c, size_t start, size_t step, size_t nSteps): dataPtr(std::make_shared<Container>(c)),
                                                                             start(start),
                                                                             step(step),
                                                                             nSteps(nSteps)
@@ -67,6 +67,20 @@ public:
                                                         start(c.start * start + c.step),
                                                         step(c.start * step),
                                                         nSteps(nSteps) {}
+    ViewOfData(const std::shared_ptr<Container> &cPtr, size_t oldStart, size_t oldStep, size_t oldNSteps):
+    dataPtr(std::make_shared<Container>()),
+    start(0),
+    step(1),
+    nSteps(cPtr->size())
+    {
+        (*dataPtr).reserve(oldNSteps);
+        for (size_t i = 0; i < oldNSteps; ++i) {
+            (*dataPtr).push_back((*cPtr)[oldStart + i * oldStep]);
+        }
+        start = 0;
+        step = 1;
+        nSteps = dataPtr->size();
+    }
     Iterator begin() {
         return Iterator(*this, dataPtr->begin() + start);
     }
@@ -79,14 +93,26 @@ public:
     typename Container::value_type operator[](size_t idx) const {
         return (*dataPtr)[start + step * idx];
     }
-    size_t size() const {
+    [[nodiscard]] size_t size() const {
+        return nSteps;
+    }
+    [[nodiscard]] const Container &getData() const {
+        return *dataPtr;
+    }
+    [[nodiscard]] size_t getStart() const {
+        return start;
+    }
+    [[nodiscard]] size_t getStep() const {
+        return step;
+    }
+    [[nodiscard]] size_t getNSteps() const {
         return nSteps;
     }
 private:
     std::shared_ptr<Container> dataPtr;
-    size_t start;
-    size_t step;
-    size_t nSteps;
+    size_t start{};
+    size_t step{};
+    size_t nSteps{};
 
     friend class boost::serialization::access;
 
@@ -108,7 +134,9 @@ public:
 
 public:
     MatrixD() = default; //TODO
-//    MatrixD(const MatrixD &other):
+    MatrixD(const MatrixD &other): nRows(other.nRows), nCols(other.nCols), data(other.data.getData(), other.data.getStart(),
+                                                                                other.data.getStep(), other.data.getNSteps())
+                                                                                {}
     MatrixD(size_t nRows, size_t nCols) : nRows(nRows),
                                         nCols(nCols),
                                         data(std::make_shared<ContainerType>(nRows * nCols)) {}
@@ -225,7 +253,7 @@ public:
     }
 
     virtual MatrixD &operator+=(double scalar) {
-        this->unaryExprInPlace([scalar] (double el) {
+        unaryExprInPlace([scalar] (double el) {
             return el + scalar;
         });
         return *this;
@@ -233,6 +261,13 @@ public:
 
     virtual MatrixD &operator-=(double scalar) {
         return (*this) += -scalar;
+    }
+
+    virtual MatrixD &operator*=(double scalar) {
+        unaryExprInPlace([scalar] (double el) {
+            return el * scalar;
+        });
+        return *this;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix);

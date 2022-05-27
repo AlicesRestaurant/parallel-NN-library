@@ -16,7 +16,11 @@ MatrixType SMActivationLayer::calculateActivations(const MatrixType &inputs) {
     MatrixD denominators = inputs.unaryExpr(std::ref(exp))
             .colReduce([] (double a, double b) {return a + b;}, 0)
             .unaryExpr([](double x) { return 1 / x; });
-    return inputs.unaryExpr(std::ref(exp)) * denominators.asDiagonal();
+    MatrixD activations(inputs.unaryExpr(std::ref(exp)));
+    for (size_t i = 0; i < denominators.rows(); ++i) {
+        activations.subblock(0, activations.rows(), i, 1 + i) *= denominators(i, 0);
+    }
+    return activations;
 #endif
 }
 
