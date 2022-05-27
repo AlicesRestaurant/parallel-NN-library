@@ -6,6 +6,7 @@
 #include <lossfunction/MSELossFunction.h>
 #include <layer/FCLayer.h>
 #include <layer/SigmoidActivationLayer.h>
+#include <layer/HTActivationLayer.h>
 #include <Eigen/Dense>
 #include <matrix/MatrixType.h>
 
@@ -41,9 +42,9 @@ int main() {
     // TODO: initialize mlp
     Model model{2, std::make_shared<MSELossFunction>()};
     model.addLayer<FCLayer>(2, 2);
-    model.addLayer<SigmoidActivationLayer>(2);
+    model.addLayer<HTActivationLayer>(2);
     model.addLayer<FCLayer>(1, 2);
-    model.addLayer<SigmoidActivationLayer>(1);
+    model.addLayer<HTActivationLayer>(1);
 
     //train model
     for (int i = 0; i < 10000; i++) {

@@ -20,7 +20,7 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
 #        NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h
         NNlib/include/layer/FCLayer.h NNlib/src/layer/FCLayer.cpp
         NNlib/include/layer/ActivationLayer.h NNlib/src/layer/ActivationLayer.cpp
-#        NNlib/src/layer/HTActivationLayer.cpp NNlib/include/layer/HTActivationLayer.h
+        NNlib/src/layer/HTActivationLayer.cpp NNlib/include/layer/HTActivationLayer.h
 #        NNlib/src/layer/SMActivationLayer.cpp NNlib/include/layer/SMActivationLayer.h
         NNlib/src/layer/SigmoidActivationLayer.cpp NNlib/include/layer/SigmoidActivationLayer.h
 #        NNlib/src/lossfunction/SVMLossFunction.cpp NNlib/include/lossfunction/SVMLossFunction.h

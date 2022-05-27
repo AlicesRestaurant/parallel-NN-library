@@ -3,31 +3,37 @@
 //
 
 #include "layer/SMActivationLayer.h"
+#include "matrix/MatrixType.h"
 
 #include <Eigen/Dense>
 
-using Eigen::VectorXd;
-using Eigen::MatrixXd;
 
-Eigen::MatrixXd SMActivationLayer::calculateActivations(const Eigen::MatrixXd &inputs) {
+MatrixType SMActivationLayer::calculateActivations(const MatrixType &inputs) {
+#ifdef USE_EIGEN
     VectorXd denominators = inputs.unaryExpr(std::ref(exp)).colwise().sum().unaryExpr([](double x) { return 1 / x; });
     return inputs.unaryExpr(std::ref(exp)) * denominators.asDiagonal();
+#else
+    MatrixD denominators = inputs.unaryExpr(std::ref(exp))
+            .colReduce([] (double a, double b) {return a + b;}, 0)
+            .unaryExpr([](double x) { return 1 / x; });
+    return inputs.unaryExpr(std::ref(exp)) * denominators.asDiagonal();
+#endif
 }
 
-Eigen::MatrixXd SMActivationLayer::calculateDerivatives(const Eigen::MatrixXd &topDerivatives) {
-    MatrixXd derivativesByActivationInputs(nodesNumber, layerInputs.cols());
-    MatrixXd layerOutputs = calculateActivations(layerInputs);
+MatrixType SMActivationLayer::calculateDerivatives(const MatrixType &topDerivatives) {
+    MatrixType derivativesByActivationInputs(nodesNumber, layerInputs.cols());
+    MatrixType layerOutputs = calculateActivations(layerInputs);
     for (int exampleNum = 0; exampleNum < layerInputs.cols(); exampleNum++) {
         for (int activationInputNum = 0; activationInputNum < nodesNumber; activationInputNum++) {
             double sumOfDerivativeByActivationInputParts = 0;
             for (int layerOutputNum = 0; layerOutputNum < nodesNumber; layerOutputNum++) {
                 double activationDerivative = 0;
                 if (activationInputNum == layerOutputNum) {
-                    activationDerivative = layerOutputs.coeff(layerOutputNum, exampleNum) * (1 - layerOutputs.coeff(activationInputNum, exampleNum));
+                    activationDerivative = layerOutputs(layerOutputNum, exampleNum) * (1 - layerOutputs(activationInputNum, exampleNum));
                 } else {
-                    activationDerivative = layerOutputs.coeff(layerOutputNum, exampleNum) * (-layerOutputs.coeff(activationInputNum, exampleNum));
+                    activationDerivative = layerOutputs(layerOutputNum, exampleNum) * (-layerOutputs(activationInputNum, exampleNum));
                 }
-                sumOfDerivativeByActivationInputParts += activationDerivative * topDerivatives.coeff(layerOutputNum, exampleNum);
+                sumOfDerivativeByActivationInputParts += activationDerivative * topDerivatives(layerOutputNum, exampleNum);
             }
             derivativesByActivationInputs(activationInputNum, exampleNum) = sumOfDerivativeByActivationInputParts;
         }

@@ -8,6 +8,32 @@
 #include <functional> // ref, cref
 #include <string>
 #include <stdexcept> // runtime_error
+#include <memory> // shared_ptr
+
+// Constructors
+
+MatrixD::MatrixD(std::initializer_list<std::initializer_list<double>> l) {
+    if (l.size() == 0) {
+        nRows = nCols = 0;
+        return;
+    }
+    size_t listNumCols = (*(l.begin())).size();
+    for (const auto &innerList : l) {
+        assert(innerList.size() == listNumCols);
+    }
+    if (listNumCols == 0) {
+        nRows = nCols = 0;
+        return;
+    }
+    nRows = l.size();
+    nCols = listNumCols;
+    std::shared_ptr<ContainerType> container = std::make_shared<ContainerType>();
+    container->reserve(nRows * nCols);
+    for (const auto &innerList : l) {
+        container->insert(container->end(), innerList);
+    }
+    data = ViewOfData<ContainerType>(container);
+}
 
 // Printing
 
@@ -134,6 +160,20 @@ bool operator==(const MatrixD& left, const MatrixD& right) {
 
 bool operator!=(const MatrixD& left, const MatrixD& right) {
     return !(left == right);
+}
+
+// Transpose
+
+MatrixD &MatrixD::transposeInPlace() {
+    std::shared_ptr<ContainerType> newData = std::make_shared<ContainerType>(nRows * nCols);
+    for (size_t i = 0; i < nRows; ++i) {
+        for (size_t j = 0; j < nCols; ++j) {
+            (*newData)[j * nRows + i] = this->operator()(i, j);
+        }
+    }
+    data = ViewOfData<ContainerType>(newData);
+    std::swap(nRows, nCols);
+    return *this;
 }
 
 // Slicing operators

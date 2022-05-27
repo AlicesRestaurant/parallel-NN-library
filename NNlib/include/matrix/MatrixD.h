@@ -16,37 +16,117 @@
 #include <iostream>
 #include <utility> // std::move, std::swap
 #include <initializer_list>
+#include <iterator>
+#include <memory> // for shared_ptr
+
+template<typename Container>
+class ViewOfData {
+public:
+    class Iterator {
+    public:
+        Iterator(ViewOfData &enclosing, typename Container::iterator iter): enclosing(enclosing), iter(iter) {}
+        typename Container::value_type &operator*() {
+            return *iter;
+        }
+        Iterator& operator++() {
+            iter += enclosing.step;
+            return *this;
+        }
+        Iterator operator++(int) {
+            Iterator saved = *this;
+            iter += enclosing.step;
+            return saved;
+        }
+        Iterator& operator+=(size_t incr) {
+            iter += enclosing.step * incr;
+            return *this;
+        }
+        Iterator& operator-=(int) {
+            iter -= enclosing.step;
+            return *this;
+        }
+        Iterator& operator==(Iterator other) {
+            return iter == other.iter;
+        }
+        Iterator& operator!=(Iterator other) {
+            return iter != other.iter;
+        }
+    private:
+        ViewOfData &enclosing;
+        typename Container::iterator iter;
+    };
+
+    ViewOfData() = default;
+    ViewOfData(const std::shared_ptr<Container> &cPtr): dataPtr(cPtr), start(0), step(1), nSteps(cPtr->size()) {}
+    ViewOfData(const Container &c, size_t start, size_t step, size_t nSteps): dataPtr(std::make_shared(std::move(c))),
+                                                                            start(start),
+                                                                            step(step),
+                                                                            nSteps(nSteps)
+    {}
+    ViewOfData(const ViewOfData &c, size_t start, size_t step, size_t nSteps): dataPtr(c.dataPtr),
+                                                        start(c.start * start + c.step),
+                                                        step(c.start * step),
+                                                        nSteps(nSteps) {}
+    Iterator begin() {
+        return Iterator(*this, dataPtr->begin() + start);
+    }
+    Iterator end() {
+        return Iterator(*this, dataPtr->begin() + start + step * nSteps);
+    }
+    typename Container::value_type &operator[](size_t idx) {
+        return (*dataPtr)[start + step * idx];
+    }
+    typename Container::value_type operator[](size_t idx) const {
+        return (*dataPtr)[start + step * idx];
+    }
+    size_t size() const {
+        return nSteps;
+    }
+private:
+    std::shared_ptr<Container> dataPtr;
+    size_t start;
+    size_t step;
+    size_t nSteps;
+
+    friend class boost::serialization::access;
+
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version)
+    {
+        ar & (*dataPtr);
+        ar & start;
+        ar & step;
+        ar & nSteps;
+    }
+};
 
 class MatrixD {
 public:
+    using ContainerType = std::vector<double>;
     static bool parallelExecution;
     static size_t numThreads;
 
-    MatrixD() = default;
-    MatrixD(size_t nRows, size_t nCols) : nRows(nRows), nCols(nCols), data(nRows * nCols) {}
-    MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows), nCols(nCols), data(data) {}
-    MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) : nRows(nRows), nCols(nCols), data(std::move(data)) {}
-    MatrixD(size_t nRows, size_t nCols, double val) : nRows(nRows), nCols(nCols), data(nRows * nCols, val) {}
-    MatrixD(std::initializer_list<std::initializer_list<double>> l) {
-        if (l.size() == 0) {
-            nRows = nCols = 0;
-            return;
-        }
-        size_t listNumCols = (*(l.begin())).size();
-        for (const auto &innerList : l) {
-            assert(innerList.size() == listNumCols);
-        }
-        if (listNumCols == 0) {
-            nRows = nCols = 0;
-            return;
-        }
-        nRows = l.size();
-        nCols = listNumCols;
-        data.reserve(nRows * nCols);
-        for (const auto &innerList : l) {
-            data.insert(data.end(), innerList);
-        }
-    }
+public:
+    MatrixD() = default; //TODO
+//    MatrixD(const MatrixD &other):
+    MatrixD(size_t nRows, size_t nCols) : nRows(nRows),
+                                        nCols(nCols),
+                                        data(std::make_shared<ContainerType>(nRows * nCols)) {}
+    MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows),
+                                                                    nCols(nCols),
+                                                                    data(std::make_shared<ContainerType>(data)) {}
+    MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) :
+                                                                    nRows(nRows),
+                                                                    nCols(nCols),
+                                                                    data(std::make_shared<ContainerType>(std::move(data))) {}
+    MatrixD(size_t nRows, size_t nCols, double val) :
+                                                nRows(nRows),
+                                                nCols(nCols),
+                                                data(std::make_shared<ContainerType>(nRows * nCols, val)) {}
+    MatrixD(std::initializer_list<std::initializer_list<double>> l);
+private:
+    MatrixD(size_t nRows, size_t nCols, ViewOfData<ContainerType> c): nRows(nRows), nCols(nCols), data(c) {}
+public:
 
     static MatrixD Random(size_t nRows, size_t nCols) {
         MatrixD res(nRows, nCols);
@@ -65,41 +145,31 @@ public:
     }
 
     // data is in row-major way
-    double operator()(size_t i, size_t j) const {
+    virtual double operator()(size_t i, size_t j) const {
         if (j >= nCols || i >= nRows)
             throw std::out_of_range("matrix indices out of range");
         return data[nCols * i + j];
     }
 
-    double &operator()(size_t i, size_t j) {
+    virtual double &operator()(size_t i, size_t j) {
         if (j >= nCols || i >= nRows)
             throw std::out_of_range("matrix indices out of range");
         return data[nCols * i + j];
     }
 
-    MatrixD row(size_t row) const {
+    virtual MatrixD row(size_t row) const {
         assert(row < nRows);
-        return MatrixD(1, nCols, std::vector<double>(data.begin() + row * nCols, data.begin() + (row + 1) * (nCols)));
+        return MatrixD(1, nCols, ViewOfData<ContainerType>(data, row * nCols, 1, nCols));
     }
 
-    MatrixD &transposeInPlace() {
-        std::vector<double> new_data(nRows * nCols);
-        for (size_t i = 0; i < nRows; ++i) {
-            for (size_t j = 0; j < nCols; ++j) {
-                new_data[j * nRows + i] = this->operator()(i, j);
-            }
-        }
-        data = std::move(new_data);
-        std::swap(nRows, nCols);
-        return *this;
-    }
+    virtual MatrixD &transposeInPlace();
 
-    MatrixD transpose() const {
+    virtual MatrixD transpose() const {
         MatrixD res(*this);
         return res.transposeInPlace();
     }
 
-    MatrixD subblock(size_t startRow, size_t endRow, size_t startCol, size_t endCol) const {
+    virtual MatrixD subblock(size_t startRow, size_t endRow, size_t startCol, size_t endCol) const {
         assert(startRow < endRow && endRow <= nRows);
         assert(startCol < endCol && endCol <= nCols);
         MatrixD res{endRow - startRow, endCol - startCol};
@@ -111,15 +181,15 @@ public:
         return res;
     }
 
-    MatrixD operator()(const std::vector<size_t> &rowsIndices, const std::vector<size_t> &colsIndices);
+    virtual MatrixD operator()(const std::vector<size_t> &rowsIndices, const std::vector<size_t> &colsIndices);
 
-    MatrixD cwiseProduct(const MatrixD &other) const {
+    virtual MatrixD cwiseProduct(const MatrixD &other) const {
         MatrixD resMat(*this);
         resMat.cwiseProductInPlace(other);
         return resMat;
     }
 
-    MatrixD &cwiseProductInPlace(const MatrixD &other) {
+    virtual MatrixD &cwiseProductInPlace(const MatrixD &other) {
         this->cwiseBinaryOperationInPlace([] (double el1, double el2) {return el1 * el2;}, other);
         return *this;
     }
@@ -138,8 +208,8 @@ public:
     template<class CustomOp>
     MatrixD &unaryExprInPlace(const CustomOp &operation) {
         MatrixD &thisMatrix = *this;
-        for (size_t x = 0; x < this->nCols; ++x) {
-            for (size_t y = 0; y < this->nRows; ++y) {
+        for (size_t x = 0; x < nCols; ++x) {
+            for (size_t y = 0; y < nRows; ++y) {
                 double &val = thisMatrix(y, x);
                 val = operation(val);
             }
@@ -154,28 +224,28 @@ public:
         return copyMatrix;
     }
 
-    MatrixD &operator+=(double scalar) {
+    virtual MatrixD &operator+=(double scalar) {
         this->unaryExprInPlace([scalar] (double el) {
             return el + scalar;
         });
         return *this;
     }
 
-    MatrixD &operator-=(double scalar) {
+    virtual MatrixD &operator-=(double scalar) {
         return (*this) += -scalar;
     }
 
     friend std::ostream &operator<<(std::ostream &os, const MatrixD &matrix);
 
-    size_t rows() const {
+    virtual size_t rows() const {
         return nRows;
     }
 
-    size_t cols() const {
+    virtual size_t cols() const {
         return nCols;
     }
 
-    double sum() {
+    virtual double sum() {
         double summ = 0;
         for (size_t i = 0; i < this->nRows; ++i) {
             for (size_t j = 0; j < this->nCols; ++j) {
@@ -183,6 +253,32 @@ public:
             }
         }
         return summ;
+    }
+
+    template <class BinaryCommutativeOperator>
+    MatrixD rowReduce(const BinaryCommutativeOperator &func, double init_val) {
+        MatrixD res(nRows, 1);
+        for (size_t i = 0; i < nRows; ++i) {
+            double val = init_val;
+            for (size_t j = 0; j < nCols; ++j) {
+                val = func(val, this->operator()(i, j));
+            }
+            res(i, 0) = val;
+        }
+        return res;
+    }
+
+    template <class BinaryCommutativeOperator>
+    MatrixD colReduce(const BinaryCommutativeOperator &func, double init_val) {
+        MatrixD res(1, nCols);
+        for (size_t j = 0; j < this->nCols; ++j) {
+            double val = init_val;
+            for (size_t i = 0; i < this->nRows; ++i) {
+                val = func(val, this->operator()(i, j));
+            }
+            res(0, j) = val;
+        }
+        return res;
     }
 
     static void setParallelExecution(bool parExecution) {
@@ -211,7 +307,7 @@ private:
         ar & nCols;
     }
 
-    std::vector<double> data;
+    ViewOfData<ContainerType> data;
     size_t nRows, nCols;
 };
 

@@ -11,9 +11,9 @@ class SMActivationLayer : public ActivationLayer {
 public:
     SMActivationLayer(int numNodes): ActivationLayer{numNodes} {}
 protected:
-    Eigen::MatrixXd calculateActivations(const Eigen::MatrixXd &inputs) override;
+    MatrixType calculateActivations(const MatrixType &inputs) override;
 
-    Eigen::MatrixXd calculateDerivatives(const Eigen::MatrixXd &topDerivatives) override;
+    MatrixType calculateDerivatives(const MatrixType &topDerivatives) override;
 };
 
 

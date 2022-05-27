@@ -245,6 +245,7 @@ TEST(MatrixTest, unaryExprInPlace) {
     MatrixD m1{{-1, 2, 1}, {1, 5, 6}};
     MatrixD res{{-1, 8, 1}, {1, 125, 216}};
     EXPECT_EQ(m1.unaryExpr([] (double x) {return x*x*x;}), res);
+    std::cout << m1 << std::endl;
     EXPECT_EQ(m1.unaryExprInPlace([] (double x) {return x*x*x;}), res);
 }
 
@@ -264,4 +265,15 @@ TEST(MatrixTest, Aggregate) {
     MatrixD m3{{1, 2},
                {-1, -2}};
     EXPECT_EQ(m3.sum(), 0);
+}
+
+TEST(MatrixTest, Reduce) {
+    MatrixD m1{{1, 2}, {3, 4}, {5, 6}};
+    MatrixD res1 = m1.rowReduce([] (double x1, double x2) {return x1 + x2;}, 0);
+    MatrixD expected1{{3}, {7}, {11}};
+    EXPECT_EQ(res1, expected1);
+
+    MatrixD res2 = m1.colReduce([] (double x1, double x2) {return x1 * x2;}, 1);
+    MatrixD expected2{{15, 48}};
+    EXPECT_EQ(res2, expected2);
 }
