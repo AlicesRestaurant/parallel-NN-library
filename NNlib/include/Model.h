@@ -18,7 +18,7 @@ public:
                                                                                         lossFunctionPtr{
                                                                                                 lossFunctionPtr} {}
 
-    MatrixType forwardPass(MatrixType input);
+    MatrixType forwardPass(const MatrixType &input);
 
     double calcLoss(const MatrixType &predictions, const MatrixType &groundTruths);
 
@@ -29,14 +29,14 @@ public:
 
     std::vector<size_t> getFCLayersIndices();
 
-    MatrixType updLayerWeights(size_t layerIdx, MatrixType &layerWeightsGradients, double alpha);
+    MatrixType updLayerWeights(size_t layerIdx, const MatrixType &layerWeightsGradients, double alpha);
     MatrixType updLayersWeights(std::vector<MatrixType> &layersWeightsGradients, double alpha);
-    void setLayerWeights(size_t layerIdx, MatrixType &newWeights);
+    void setLayerWeights(size_t layerIdx, const MatrixType &newWeights);
     MatrixType getLayerWeights(size_t layerIdx);
 
     void trainBatch(const MatrixType &features, const MatrixType &labels, double alpha);
 
-    std::vector<MatrixType> calculateBatchLayersGradients(MatrixType &features, MatrixType &labels);
+    std::vector<MatrixType> calculateBatchLayersGradients(const MatrixType &features, const MatrixType &labels);
 
     friend std::ostream &operator<<(std::ostream &os, const Model &mlp);
 

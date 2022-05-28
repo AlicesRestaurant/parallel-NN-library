@@ -47,8 +47,8 @@ MatrixType FCLayer::forwardPropagate(const MatrixType &inputs) {
 // Backward propagation
 
 MatrixType FCLayer::calculateGradientsWrtInputs(const MatrixType &topDerivatives) {
-    using Eigen::placeholders::last, Eigen::placeholders::all;
 #ifdef USE_EIGEN
+    using Eigen::placeholders::last, Eigen::placeholders::all;
     MatrixType bottomDerivatives = weights(all, Eigen::seq(1, last)).transpose() *
                                                                         topDerivatives;
 #else
@@ -59,8 +59,8 @@ MatrixType FCLayer::calculateGradientsWrtInputs(const MatrixType &topDerivatives
 }
 
 MatrixType FCLayer::calculateGradientsWrtWeights(const MatrixType &topDerivatives) {
-    int examplesNum = layerInputs.cols();
 #if 0
+    int examplesNum = layerInputs.cols();
     MatrixType batchDerivativesByWeights(weights.rows(), weights.cols());
     for (int i = 0; i < examplesNum; i++) {
         batchDerivativesByWeights += topDerivatives.col(i) * layerInputs.col(i).transpose();

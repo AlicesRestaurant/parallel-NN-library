@@ -22,7 +22,7 @@ std::vector<size_t> Model::getFCLayersIndices() {
     return FCLayersIdx;
 }
 
-MatrixType Model::updLayerWeights(size_t layerIdx, MatrixType &layerWeightsGradients, double alpha) {
+MatrixType Model::updLayerWeights(size_t layerIdx, const MatrixType &layerWeightsGradients, double alpha) {
     layerPtrs[layerIdx]->updateWeights(layerPtrs[layerIdx]->getWeights() -
                                        alpha * layerWeightsGradients);
     return layerPtrs[layerIdx]->getWeights();
@@ -36,7 +36,7 @@ MatrixType Model::updLayersWeights(std::vector<MatrixType> &layersWeightsGradien
     }
 }
 
-void Model::setLayerWeights(size_t layerIdx, MatrixType &newWeights) {
+void Model::setLayerWeights(size_t layerIdx, const MatrixType &newWeights) {
     layerPtrs[layerIdx]->updateWeights(newWeights);
 }
 
@@ -46,7 +46,7 @@ MatrixType Model::getLayerWeights(size_t layerIdx) {
 
 // Forward
 
-MatrixType Model::forwardPass(MatrixType input) {
+MatrixType Model::forwardPass(const MatrixType &input) {
     MatrixType outputOfPrevLayer = input;
     for (size_t i = 0; i < layerPtrs.size(); ++i) {
         outputOfPrevLayer = layerPtrs[i]->forwardPropagate(outputOfPrevLayer);
@@ -78,7 +78,7 @@ void Model::trainBatch(const MatrixType &features, const MatrixType &labels, dou
     }
 }
 
-std::vector<MatrixType> Model::calculateBatchLayersGradients(MatrixType &features, MatrixType &labels) {
+std::vector<MatrixType> Model::calculateBatchLayersGradients(const MatrixType &features, const MatrixType &labels) {
     std::vector<MatrixType> batchGradients;
 
     MatrixType layersOutputs = forwardPass(features);
