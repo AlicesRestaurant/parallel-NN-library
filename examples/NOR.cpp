@@ -31,7 +31,7 @@ int main() {
 
     double alpha = 1;
 
-    size_t batchSize = 2;
+    size_t batchSize = 4;
     int numberIters = 2000;
     size_t numProcessors = comm.size();
 
@@ -66,6 +66,7 @@ int main() {
     distModel.addLayer<SigmoidActivationLayer>(1);
 
     DistributedTrainer distTrainer{std::make_shared<Model>(distModel), batchSize, alpha, std::make_shared<mpi::communicator>(comm), numProcessors};
+
 
     distTrainer.trainDataset(features, labels, numberIters);
 

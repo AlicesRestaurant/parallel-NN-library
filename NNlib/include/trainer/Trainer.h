@@ -14,7 +14,7 @@ class Trainer {
 public:
     Trainer(std::shared_ptr<Model> model, size_t batchSize, double learningRate) : model(std::move(model)), learningRate(learningRate), batchSize(batchSize) {}
 
-    virtual void trainDataset(MatrixType features, MatrixType labels, int numberIterations);
+    virtual void trainDataset(MatrixType &features, MatrixType &labels, int numberIterations);
 
 protected:
     std::shared_ptr<Model> model;

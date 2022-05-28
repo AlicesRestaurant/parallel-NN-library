@@ -9,8 +9,9 @@
 //#define SEQ
 //#define DEBUG
 
-void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, int numberIterations) {
+void DistributedTrainer::trainDataset(MatrixType &features, MatrixType &labels, int numberIterations) {
     std::vector<size_t> FCLayersIdx = std::move(model->getFCLayersIndices());
+
 
 #ifdef SEQ
 
@@ -24,8 +25,6 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
     for (int s = 0; s < numberIterations; ++s) {
         // subtract 1 because generates including max
         batchesNumbers = std::move(generateRandIntSeq(0, numBatches - 1, numProcessors));
-
-//        model->trainBatch(batchesFeatures[batchesNumbers[0]], batchesLabels[batchesNumbers[0]], learningRate);
 
         std::vector<std::vector<MatrixType>> allGradients;
         allGradients.reserve(numProcessors);
@@ -64,12 +63,13 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
             model->updLayerWeights(layerIdx, meanLayersGradients[numLayer], learningRate);
         }
 
-        std::cout << s << "\n";
+//        std::cout << s << "\n";
     }
 
 #else
 
     if (comm->rank() == 0) {
+
         // divide in equal batches => convert in vector of matrices
         std::vector<MatrixType> batchesFeatures = splitMatrixInBatches(features, batchSize),
                 batchesLabels = splitMatrixInBatches(labels, batchSize);
@@ -80,7 +80,7 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
 
         // n times
         for (int numIter = 0; numIter < numberIterations; ++numIter) {
-            // generate 6 random numbers in array indices interval
+            // generate k random numbers in array indices interval
             batchesNumbers = std::move(generateRandIntSeq(0, numBatches - 1, numProcessors));
 
 #ifdef DEBUG
@@ -105,15 +105,17 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
             mpi::wait_all(reqs.begin(), reqs.end());
 
             // do own calculation
+            // pick index for 0 rank from batches numbers
             std::vector<MatrixType> ownLayersGradients(
-                    std::move(model->calculateBatchLayersGradients(batchesFeatures[0], batchesLabels[0])));
+                    std::move(model->calculateBatchLayersGradients(batchesFeatures[batchesNumbers[0]],
+                                                                   batchesLabels[batchesNumbers[0]])));
 
             // recv async result -> sync with gather
             // wait for recvs
             std::vector<MatrixType> meanLayersGradients;
             meanLayersGradients.reserve(FCLayersIdx.size());
-            std::vector<MatrixType> layerGradients;
-            layerGradients.reserve(numProcessors);
+            // need to fill layerGradients to serialize incoming MatrixD
+            std::vector<MatrixType> layerGradients(numProcessors, MatrixType{0, 0});
             for (size_t numLayer = 0; numLayer < FCLayersIdx.size(); ++numLayer) {
                 mpi::gather(*comm, ownLayersGradients[numLayer], layerGradients, 0);
 
@@ -133,6 +135,15 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
                 meanLayersGradients.emplace_back(std::reduce(layerGradients.begin(), layerGradients.end(),
                                                              emptyMatrix, std::plus<>()));
                 meanLayersGradients[numLayer] = meanLayersGradients[numLayer] / (double) numProcessors;
+
+#ifdef DEBUG
+
+                if (numLayer == 0 && numIter == 1) {
+                    std::cout << meanLayersGradients[numLayer] << '\n';
+                }
+
+#endif
+
             }
 
             // update and broadcast
@@ -147,7 +158,9 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
         // n times
         for (int numIter = 0; numIter < numberIterations; ++numIter) {
             // recv synchronously batch
-            MatrixType batchFeatures, batchLabels;
+            // init with 0 to init MatrixD::ViewData
+            // otherwise, error
+            MatrixType batchFeatures{0, 0}, batchLabels{0, 0};
             comm->recv(0, 0, batchFeatures);
             comm->recv(0, 0, batchLabels);
 
@@ -163,7 +176,7 @@ void DistributedTrainer::trainDataset(MatrixType features, MatrixType labels, in
 
             // recv updated weights from root and update
             for (size_t numLayer = 0; numLayer < FCLayersIdx.size(); ++numLayer) {
-                MatrixType updatedWeights;
+                MatrixType updatedWeights{0, 0};
                 mpi::broadcast(*comm, updatedWeights, 0);
                 size_t layerIdx = FCLayersIdx[numLayer];
                 model->setLayerWeights(layerIdx, updatedWeights);

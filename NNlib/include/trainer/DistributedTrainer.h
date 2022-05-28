@@ -17,7 +17,7 @@ namespace mpi = boost::mpi;
 class DistributedTrainer : public Trainer {
 public:
     DistributedTrainer(std::shared_ptr<Model> model, size_t batchSize, double learningRate, std::shared_ptr<mpi::communicator> comm, size_t numProcessors) : Trainer(std::move(model), batchSize, learningRate), comm(std::move(comm)), numProcessors(numProcessors) {}
-    void trainDataset(MatrixType features, MatrixType labels, int numberIterations) override;
+    void trainDataset(MatrixType &features, MatrixType &labels, int numberIterations) override;
 
     void setNumberProcessors(size_t nProcessors) {
         numProcessors = nProcessors;

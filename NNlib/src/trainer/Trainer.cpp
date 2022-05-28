@@ -5,7 +5,7 @@
 #include "trainer/Trainer.h"
 #include "utils/random.h"
 
-void Trainer::trainDataset(MatrixType features, MatrixType labels, int numberIterations) {
+void Trainer::trainDataset(MatrixType &features, MatrixType &labels, int numberIterations) {
     // get indices of FC layers
     std::vector<size_t> FCLayersIdx = std::move(model->getFCLayersIndices());
 
