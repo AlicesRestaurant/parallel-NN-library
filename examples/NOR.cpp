@@ -21,17 +21,11 @@ int main() {
     MatrixType labels;
 
     if (comm.rank() == 0) {
-        features = MatrixType(4, 2);
-        labels = MatrixType(1, 4);
-#ifdef USE_EIGEN
-        features << 0, 0,
-                0, 1,
-                1, 0,
-                1, 1;
-        labels << 1, 0, 0, 0;
-#else
-
-#endif
+        features = MatrixType{{0, 0},
+                 {0, 1},
+                 {1, 0},
+                 {1, 1}};
+        labels = MatrixType{{1, 0, 0, 0}};
         features.transposeInPlace();
     }
 
