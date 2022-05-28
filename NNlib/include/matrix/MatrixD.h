@@ -18,6 +18,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <memory> // for shared_ptr
+#include <limits> // for numeric_limits<>
 
 template<typename Container>
 class ViewOfData {
@@ -57,62 +58,82 @@ public:
     };
 
     ViewOfData() = default;
-    ViewOfData(const std::shared_ptr<Container> &cPtr): dataPtr(cPtr), start(0), step(1), nSteps(cPtr->size()) {}
-    ViewOfData(const Container &c, size_t start, size_t step, size_t nSteps): dataPtr(std::make_shared<Container>(c)),
-                                                                            start(start),
-                                                                            step(step),
-                                                                            nSteps(nSteps)
+    ViewOfData(const ViewOfData&) = default; // Copy inner array
+    ViewOfData(ViewOfData&&) = default; // Move inner array
+    ViewOfData &operator=(const ViewOfData&) = default; // Copy inner array
+    ViewOfData &operator=(ViewOfData&&) = default; // Move inner array
+    // Construct view on passed container
+    ViewOfData(const Container &cont, size_t h, size_t w):
+                dataPtr(std::make_shared<Container>(cont)),
+                start(0),
+                height(h),
+                fullHeight(h),
+                width(w),
+                fullWidth(w) {}
+    // Construct view on passed container
+    ViewOfData(const Container &&cont, size_t h, size_t w):
+            dataPtr(std::make_shared<Container>(std::move(cont))),
+            start(0),
+            height(h),
+            fullHeight(h),
+            width(w),
+            fullWidth(w) {}
+    // Construct view on view
+    ViewOfData(const ViewOfData &on, size_t startI, size_t startJ, size_t width, size_t height):
+    dataPtr(on.dataPtr),
+    start(startI * on.fullWidth + startJ),
+    height(height),
+    width(width),
+    fullHeight(on.fullHeight),
+    fullWidth(on.fullWidth)
     {}
-    ViewOfData(const ViewOfData &c, size_t start, size_t step, size_t nSteps): dataPtr(c.dataPtr),
-                                                        start(c.start * start + c.step),
-                                                        step(c.start * step),
-                                                        nSteps(nSteps) {}
-    ViewOfData(const std::shared_ptr<Container> &cPtr, size_t oldStart, size_t oldStep, size_t oldNSteps):
-    dataPtr(std::make_shared<Container>()),
-    start(0),
-    step(1),
-    nSteps(cPtr->size())
-    {
-        (*dataPtr).reserve(oldNSteps);
-        for (size_t i = 0; i < oldNSteps; ++i) {
-            (*dataPtr).push_back((*cPtr)[oldStart + i * oldStep]);
+    // Return new view on copy of the data
+    ViewOfData copy() const {
+        Container con(width * height);
+        for (size_t i = 0; i < height; ++i) {
+            for (size_t j = 0; j < width; ++j) {
+                con[i * width + j] = operator()(i, j);
+            }
         }
-        start = 0;
-        step = 1;
-        nSteps = dataPtr->size();
+        return ViewOfData(con, height, width);
     }
-    Iterator begin() {
-        return Iterator(*this, dataPtr->begin() + start);
+//    Iterator begin() {
+//        return Iterator(*this, dataPtr->begin() + start);
+//    }
+//    Iterator end() {
+//        return Iterator(*this, dataPtr->begin() + start + width + height * fullWidth);
+//    }
+    typename Container::value_type &operator()(size_t i, size_t j) {
+        return (*dataPtr)[start + j + i * fullWidth];
     }
-    Iterator end() {
-        return Iterator(*this, dataPtr->begin() + start + step * nSteps);
+    typename Container::value_type operator()(size_t i, size_t j) const {
+        return (*dataPtr)[start + j + i * fullWidth];
     }
-    typename Container::value_type &operator[](size_t idx) {
-        return (*dataPtr)[start + step * idx];
+    long getNumViews() {
+        return dataPtr.use_count();
     }
-    typename Container::value_type operator[](size_t idx) const {
-        return (*dataPtr)[start + step * idx];
+//    [[nodiscard]] size_t size() const {
+//        return nSteps;
+//    }
+//    [[nodiscard]] const Container &getData() const {
+//        return *dataPtr;
+//    }
+//    [[nodiscard]] size_t getStart() const {
+//        return start;
+//    }
+    [[nodiscard]] size_t getWidth() const {
+        return width;
     }
-    [[nodiscard]] size_t size() const {
-        return nSteps;
-    }
-    [[nodiscard]] const Container &getData() const {
-        return *dataPtr;
-    }
-    [[nodiscard]] size_t getStart() const {
-        return start;
-    }
-    [[nodiscard]] size_t getStep() const {
-        return step;
-    }
-    [[nodiscard]] size_t getNSteps() const {
-        return nSteps;
+    [[nodiscard]] size_t getHeight() const {
+        return height;
     }
 private:
     std::shared_ptr<Container> dataPtr;
-    size_t start{};
-    size_t step{};
-    size_t nSteps{};
+    size_t start;
+    size_t fullWidth;
+    size_t fullHeight;
+    size_t width;
+    size_t height;
 
     friend class boost::serialization::access;
 
@@ -121,8 +142,10 @@ private:
     {
         ar & (*dataPtr);
         ar & start;
-        ar & step;
-        ar & nSteps;
+        ar & fullWidth;
+        ar & fullHeight;
+        ar & width;
+        ar & height;
     }
 };
 
@@ -134,32 +157,55 @@ public:
 
 public:
     MatrixD() = default; //TODO
-    MatrixD(const MatrixD &other): nRows(other.nRows), nCols(other.nCols), data(other.data.getData(), other.data.getStart(),
-                                                                                other.data.getStep(), other.data.getNSteps())
-                                                                                {}
+    MatrixD(const MatrixD& other): nRows(other.nRows), nCols(other.nCols), data(other.data.copy()) {} // Copy content
+    MatrixD(MatrixD&& other): nRows(other.nRows), nCols(other.nCols), data(other.data) {
+        if (other.data.getNumViews() > 1) {
+            data = other.data.copy();
+        } else {
+            data = std::move(other.data);
+        }
+    } // move if only one view
+    MatrixD &operator=(const MatrixD& other) {
+        nRows = other.nRows;
+        nCols = other.nCols;
+        data = other.data.copy();
+        return *this;
+    } // Copy content
+    MatrixD &operator=(MatrixD&& other) {
+        nRows = other.nRows;
+        nCols = other.nCols;
+        if (other.data.getNumViews() > 1) {
+            data = other.data.copy();
+        } else {
+            data = std::move(other.data);
+        }
+        return *this;
+    }; // move if only one view
     MatrixD(size_t nRows, size_t nCols) : nRows(nRows),
                                         nCols(nCols),
-                                        data(std::make_shared<ContainerType>(nRows * nCols)) {}
-    MatrixD(size_t nRows, size_t nCols, std::vector<double> &data) : nRows(nRows),
+                                        data(ContainerType(nRows * nCols), nRows, nCols) {}
+    MatrixD(size_t nRows, size_t nCols, const ContainerType &container) : nRows(nRows),
                                                                     nCols(nCols),
-                                                                    data(std::make_shared<ContainerType>(data)) {}
-    MatrixD(size_t nRows, size_t nCols, std::vector<double> &&data) :
+                                                                    data(container, nRows, nCols) {}
+    MatrixD(size_t nRows, size_t nCols, ContainerType &&container) :
                                                                     nRows(nRows),
                                                                     nCols(nCols),
-                                                                    data(std::make_shared<ContainerType>(std::move(data))) {}
+                                                                    data(std::move(container), nRows, nCols) {}
     MatrixD(size_t nRows, size_t nCols, double val) :
                                                 nRows(nRows),
                                                 nCols(nCols),
-                                                data(std::make_shared<ContainerType>(nRows * nCols, val)) {}
+                                                data(ContainerType(nRows * nCols, val), nRows, nCols) {}
     MatrixD(std::initializer_list<std::initializer_list<double>> l);
 private:
-    MatrixD(size_t nRows, size_t nCols, ViewOfData<ContainerType> c): nRows(nRows), nCols(nCols), data(c) {}
+    MatrixD(ViewOfData<ContainerType> view): nRows(view.getHeight()), nCols(view.getWidth()), data(view) {}
 public:
 
     static MatrixD Random(size_t nRows, size_t nCols) {
         MatrixD res(nRows, nCols);
-        for (size_t i = 0; i < res.data.size(); ++i) {
-            res.data[i] = static_cast<double>(std::rand()) / RAND_MAX * 2 - 1;
+        for (size_t i = 0; i < res.nRows; ++i) {
+            for (size_t j = 0; j < res.nCols; ++j) {
+                res.data(i, j) = static_cast<double>(std::rand()) / RAND_MAX * 2 - 1;
+            }
         }
         return res;
     }
@@ -176,18 +222,13 @@ public:
     virtual double operator()(size_t i, size_t j) const {
         if (j >= nCols || i >= nRows)
             throw std::out_of_range("matrix indices out of range");
-        return data[nCols * i + j];
+        return data(i, j);
     }
 
     virtual double &operator()(size_t i, size_t j) {
         if (j >= nCols || i >= nRows)
             throw std::out_of_range("matrix indices out of range");
-        return data[nCols * i + j];
-    }
-
-    virtual MatrixD row(size_t row) const {
-        assert(row < nRows);
-        return MatrixD(1, nCols, ViewOfData<ContainerType>(data, row * nCols, 1, nCols));
+        return data(i, j);
     }
 
     virtual MatrixD &transposeInPlace();
@@ -197,16 +238,42 @@ public:
         return res.transposeInPlace();
     }
 
-    virtual MatrixD subblock(size_t startRow, size_t endRow, size_t startCol, size_t endCol) const {
+    virtual MatrixD subblock(size_t startRow, size_t endRow, size_t startCol, size_t endCol) {
         assert(startRow < endRow && endRow <= nRows);
         assert(startCol < endCol && endCol <= nCols);
-        MatrixD res{endRow - startRow, endCol - startCol};
-        for (size_t i = 0; i < res.nRows; ++i) {
-            for (size_t j = 0; j < res.nCols; ++j) {
-                res(i, j) = this->operator()(startRow + i, startCol + j);
+        return MatrixD(ViewOfData<ContainerType>(data, startRow, startCol, endCol - startCol, endRow - startRow));
+    }
+
+    virtual MatrixD row(size_t rowIdx) {
+        assert(0 <= rowIdx && rowIdx < nRows);
+        return subblock(rowIdx, rowIdx + 1, 0, nCols);
+    }
+
+    virtual MatrixD col(size_t colIdx) {
+        assert(0 <= colIdx && colIdx < nCols);
+        return subblock(0, nRows, colIdx, colIdx + 1);
+    }
+
+    virtual void maxCoeff(size_t *iIdx = nullptr, size_t *jIdx = nullptr) {
+        double maxEl = std::numeric_limits<double>::lowest();
+        size_t maxI = -1;
+        size_t maxJ = -1;
+        for (size_t i = 0; i < nRows; ++i) {
+            for (size_t j = 0; j < nCols; ++j) {
+                double curEl;
+                if (maxEl < (curEl = operator()(i, j))) {
+                    maxEl = curEl;
+                    maxI = i;
+                    maxJ = j;
+                }
             }
         }
-        return res;
+        if (iIdx != nullptr) {
+            *iIdx = maxI;
+        }
+        if (jIdx != nullptr) {
+            *jIdx = maxJ;
+        }
     }
 
     virtual MatrixD operator()(const std::vector<size_t> &rowsIndices, const std::vector<size_t> &colsIndices);
@@ -267,6 +334,13 @@ public:
         unaryExprInPlace([scalar] (double el) {
             return el * scalar;
         });
+        return *this;
+    }
+
+    virtual MatrixD &operator/=(MatrixD right) {
+        cwiseBinaryOperationInPlace([] (double el1, double el2) {
+            return el1 / el2;
+        }, right);
         return *this;
     }
 
@@ -356,6 +430,7 @@ MatrixD operator-(const MatrixD &left, double scalar);
 MatrixD operator*(double scalar, const MatrixD &mat);
 MatrixD operator/(double scalar, const MatrixD &mat);
 MatrixD operator/(const MatrixD &mat, double scalar);
+MatrixD operator/(const MatrixD &left, const MatrixD &right);
 
 MatrixD operator*(const MatrixD &left, const MatrixD &right);
 

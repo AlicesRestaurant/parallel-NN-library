@@ -27,12 +27,12 @@ MatrixD::MatrixD(std::initializer_list<std::initializer_list<double>> l) {
     }
     nRows = l.size();
     nCols = listNumCols;
-    std::shared_ptr<ContainerType> container = std::make_shared<ContainerType>();
-    container->reserve(nRows * nCols);
+    ContainerType container;
+    container.reserve(nRows * nCols);
     for (const auto &innerList : l) {
-        container->insert(container->end(), innerList);
+        container.insert(container.end(), innerList);
     }
-    data = ViewOfData<ContainerType>(container);
+    data = ViewOfData<ContainerType>(container, nRows, nCols);
 }
 
 // Printing
@@ -83,6 +83,9 @@ MatrixD operator/(double scalar, const MatrixD &mat) {
 }
 MatrixD operator/(const MatrixD &mat, double scalar) {
     return mat.unaryExpr([scalar] (double el) -> double {return el / scalar;});
+}
+MatrixD operator/(const MatrixD &left, const MatrixD &right) {
+    return cwiseBinaryOperation([] (auto l, auto r) {return l / r;}, left, right);
 }
 
 // Matrix-Matrix Multiplication
@@ -165,13 +168,13 @@ bool operator!=(const MatrixD& left, const MatrixD& right) {
 // Transpose
 
 MatrixD &MatrixD::transposeInPlace() {
-    std::shared_ptr<ContainerType> newData = std::make_shared<ContainerType>(nRows * nCols);
+    ViewOfData<ContainerType> newData(ContainerType(nCols * nRows), nCols, nRows);
     for (size_t i = 0; i < nRows; ++i) {
         for (size_t j = 0; j < nCols; ++j) {
-            (*newData)[j * nRows + i] = this->operator()(i, j);
+            newData(j, i) = data(i, j);
         }
     }
-    data = ViewOfData<ContainerType>(newData);
+    data = newData;
     std::swap(nRows, nCols);
     return *this;
 }

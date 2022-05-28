@@ -17,7 +17,7 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
 #        NNlib/src/regularization/Regularization.cpp NNlib/include/regularization/Regularization.h
 #        NNlib/src/regularization/NoRegularization.cpp NNlib/include/regularization/NoRegularization.h
 #        NNlib/src/regularization/L2Regularization.cpp NNlib/include/regularization/L2Regularization.h
-#        NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h
+        NNlib/src/lossfunction/SoftMaxLossFunction.cpp NNlib/include/lossfunction/SoftMaxLossFunction.h
         NNlib/include/layer/FCLayer.h NNlib/src/layer/FCLayer.cpp
         NNlib/include/layer/ActivationLayer.h NNlib/src/layer/ActivationLayer.cpp
         NNlib/src/layer/HTActivationLayer.cpp NNlib/include/layer/HTActivationLayer.h

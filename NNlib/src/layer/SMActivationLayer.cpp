@@ -10,7 +10,7 @@
 
 MatrixType SMActivationLayer::calculateActivations(const MatrixType &inputs) {
 #ifdef USE_EIGEN
-    VectorXd denominators = inputs.unaryExpr(std::ref(exp)).colwise().sum().unaryExpr([](double x) { return 1 / x; });
+    Eigen::VectorXd denominators = inputs.unaryExpr(std::ref(exp)).colwise().sum().unaryExpr([](double x) { return 1 / x; });
     return inputs.unaryExpr(std::ref(exp)) * denominators.asDiagonal();
 #else
     MatrixD denominators = inputs.unaryExpr(std::ref(exp))

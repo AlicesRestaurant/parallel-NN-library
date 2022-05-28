@@ -280,3 +280,20 @@ TEST(MatrixTest, Reduce) {
     MatrixD expected3{{-30, -96}};
     EXPECT_EQ(expected2, expected3);
 }
+
+TEST(MatrixTest, Subblock2) {
+    MatrixD m1{{1, 2, 3},
+               {4, 5, 6},
+               {7, 8, 9}};
+    MatrixD expected1{{2, 3},
+                      {5, 6},
+                      {8, 9}};
+    MatrixD expected12{{5}};
+    EXPECT_EQ(m1.subblock(1, 2, 1, 2), expected12);
+
+    m1.subblock(0, 3, 0, 3) *= 2;
+    MatrixD expected13{{2, 4, 6},
+                       {8, 10, 12},
+                       {14, 16, 18}};
+    EXPECT_EQ(m1, expected13);
+}

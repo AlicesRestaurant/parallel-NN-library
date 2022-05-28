@@ -4,6 +4,7 @@
 
 #include <Model.h>
 #include <lossfunction/MSELossFunction.h>
+#include <lossfunction/SoftMaxLossFunction.h>
 #include <layer/FCLayer.h>
 #include <layer/SigmoidActivationLayer.h>
 #include <layer/HTActivationLayer.h>
@@ -49,13 +50,18 @@ int main() {
     //train model
     for (int i = 0; i < 10000; i++) {
         model.trainBatch(features, labels.transpose(), alpha);
+        if (i % 1000 == 0) {
+            std::cout << "Loss: " << model.calcLoss(model.forwardPass(features), labels.transpose()) << std::endl;
+        }
     }
 
     //print info
     std::cout << model;
 
     //test
-    std::cout << model.forwardPass(features);
+    std::cout << model.forwardPass(features) << std::endl;
+
+    std::cout << "Loss: " << model.calcLoss(model.forwardPass(features), labels.transpose()) << std::endl;
 
     return 0;
 }

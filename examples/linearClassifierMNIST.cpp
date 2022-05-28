@@ -1,9 +1,11 @@
+#include "time_measurement.h"
+
 #include <Model.h>
 #include <layer/FCLayer.h>
 #include <layer/SigmoidActivationLayer.h>
 #include <lossfunction/SoftMaxLossFunction.h>
-#include "lossfunction/SVMLossFunction.h"
 #include <Eigen/Core>
+#include <matrix/MatrixType.h>
 
 #include <iostream>
 #include <fstream>
@@ -11,11 +13,10 @@
 #include <cstdint> // for std::uint32_t and others
 #include <memory>
 
-using Eigen::MatrixXd;
 
-void readImages(MatrixXd &outImages, const std::string &fname);
-void readLabels(MatrixXd &outLabels, const std::string &fname);
-void fitNN(const MatrixXd &trainImages, const MatrixXd &trainLabels, const MatrixXd &testImages, const MatrixXd &testLabels,
+void readImages(MatrixType &outImages, const std::string &fname);
+void readLabels(MatrixType &outLabels, const std::string &fname);
+void fitNN(const MatrixType &trainImages, const MatrixType &trainLabels, const MatrixType &testImages, const MatrixType &testLabels,
            unsigned long numIters, double alpha);
 template <class T>
 void endswap(T *objp)
@@ -30,11 +31,13 @@ constexpr const char* trainLabelsFilename = "train-labels.idx1-ubyte";
 constexpr const char* testImagesFilename = "t10k-images.idx3-ubyte";
 constexpr const char* testLabelsFilename = "t10k-labels.idx1-ubyte";
 
-constexpr unsigned long NUM_ITERS = 500ul;
+constexpr unsigned long NUM_ITERS = 10ul;
 constexpr double ALPHA = 1e-5;
 
 int main() {
-    MatrixXd trainImages, trainLabels, testImages, testLabels;
+    MatrixD::setParallelExecution(true);
+    MatrixD::setNumberThreads(12);
+    MatrixType trainImages, trainLabels, testImages, testLabels;
     std::string prefixStr{prefix};
 
     readImages(trainImages, prefixStr + trainImagesFilename);
@@ -48,19 +51,22 @@ int main() {
     return 0;
 }
 
-void fitNN(const MatrixXd &trainImages, const MatrixXd &trainLabels, const MatrixXd &testImages, const MatrixXd &testLabels,
+void fitNN(const MatrixType &trainImages, const MatrixType &trainLabels, const MatrixType &testImages, const MatrixType &testLabels,
            unsigned long numIters, double alpha) {
     size_t numInputsNeurons = trainImages.rows();
     size_t numOutputNeurons = trainLabels.rows();
-    Model model{numInputsNeurons, std::make_shared<SVMLossFunction>()};
+    Model model{numInputsNeurons, std::make_shared<SoftMaxLossFunction>()};
     model.addLayer<FCLayer>(numOutputNeurons, numInputsNeurons, -1.0/255, 1.0/255);
 
     for (unsigned long i = 0; i < numIters; ++i) {
-        if (i % 100ul == 0) {
+        if (i % 1ul == 0) {
             std::cout << "Loss on train:\t" << model.calcLoss(model.forwardPass(trainImages), trainLabels) << '\n';
             std::cout << "Loss on test:\t" << model.calcLoss(model.forwardPass(testImages), testLabels) << '\n' << std::endl;
         }
+        auto start = get_current_time_fenced();
         model.trainBatch(trainImages, trainLabels, alpha);
+        auto end = get_current_time_fenced();
+        std::cout << to_us(end - start) << std::endl;
     }
 
     auto predicted = model.forwardPass(testImages);
@@ -76,7 +82,7 @@ void fitNN(const MatrixXd &trainImages, const MatrixXd &trainLabels, const Matri
     std::cout << "Model: " << model << std::endl;
 }
 
-void readImages(MatrixXd &outImages, const std::string &fname) {
+void readImages(MatrixType &outImages, const std::string &fname) {
     std::ifstream ifs(fname, std::ios::out | std::ios::binary);
 
     if (!ifs) {
@@ -99,7 +105,11 @@ void readImages(MatrixXd &outImages, const std::string &fname) {
     endswap(&numRows);
     endswap(&numCols);
 
+#ifdef USE_EIGEN
     outImages.resize(numRows * numCols, numImages);
+#else
+    outImages = MatrixD(numRows * numCols, numImages);
+#endif
     for (std::uint_fast32_t imgIdx = 0; imgIdx < numImages; ++imgIdx) {
         for (std::uint_fast32_t i = 0; i < numRows; ++i) {
             for (std::uint_fast32_t j = 0; j < numCols; ++j) {
@@ -112,7 +122,7 @@ void readImages(MatrixXd &outImages, const std::string &fname) {
 }
 
 
-void readLabels(MatrixXd &outLabels, const std::string &fname) {
+void readLabels(MatrixType &outLabels, const std::string &fname) {
     std::ifstream ifs(fname, std::ios::out | std::ios::binary);
 
     if (!ifs) {
@@ -129,8 +139,12 @@ void readLabels(MatrixXd &outLabels, const std::string &fname) {
     ifs.read(reinterpret_cast<char*>(&numLabels), sizeof(numLabels));
     endswap(&numLabels);
 
+#ifdef USE_EIGEN
     outLabels.resize(10, numLabels);
     outLabels.setZero();
+#else
+    outLabels = MatrixD(10, numLabels, 0);
+#endif
     for (std::uint_fast32_t lblIdx = 0; lblIdx < numLabels; ++lblIdx) {
         unsigned char byte;
         ifs.read(reinterpret_cast<char*>(&byte), sizeof(byte));

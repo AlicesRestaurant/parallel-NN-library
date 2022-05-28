@@ -13,7 +13,11 @@ FCLayer::FCLayer(size_t nodesNumber, size_t layerInputsNumber, double minWeight,
         Layer{nodesNumber, Layer::LayerType::FC},
         weights(MatrixType::Random(nodesNumber, layerInputsNumber + 1))
 {
-    weights.unaryExpr([maxWeight, minWeight] (double x) {
+#ifdef USE_EIGEN
+    weights = weights.unaryExpr([maxWeight, minWeight] (double x) {
+#else
+    weights.unaryExprInPlace([maxWeight, minWeight] (double x) {
+#endif
         return (x + 1) / 2 * (maxWeight - minWeight) + minWeight;
     });
 }
