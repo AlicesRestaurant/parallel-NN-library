@@ -57,6 +57,10 @@ target_link_libraries(${LIBRARY_NAME} ${Boost_LIBRARIES})
 find_package(Threads REQUIRED)
 target_link_libraries("${LIBRARY_NAME}" ${CMAKE_THREAD_LIBS_INIT})
 
+# Link benchmark with library
+find_package(benchmark REQUIRED)
+target_link_libraries("${LIBRARY_NAME}" benchmark::benchmark)
+
 # Create test examples and link with our library
 function(addTestExample target_name_of_example)
     # example of usage: addTestExample(targetName src/main.cpp src/my_utils.h)

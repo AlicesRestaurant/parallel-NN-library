@@ -1,4 +1,5 @@
 #include "time_measurement.h"
+#include "trainer/DistributedTrainer.h"
 
 #include <Model.h>
 #include <layer/FCLayer.h>
@@ -7,17 +8,24 @@
 #include <Eigen/Core>
 #include <matrix/MatrixType.h>
 
+#include <benchmark/benchmark.h>
+#include <boost/mpi.hpp>
+
 #include <iostream>
 #include <fstream>
 #include <cassert>
 #include <cstdint> // for std::uint32_t and others
 #include <memory>
 
+namespace mpi = boost::mpi;
+
 
 void readImages(MatrixType &outImages, const std::string &fname);
 void readLabels(MatrixType &outLabels, const std::string &fname);
 void fitNN(const MatrixType &trainImages, const MatrixType &trainLabels, const MatrixType &testImages, const MatrixType &testLabels,
            unsigned long numIters, double alpha);
+void fitMpiNN(MatrixType &trainImages, MatrixType &trainLabels, const MatrixType &testImages, const MatrixType &testLabels,
+              unsigned long numIters, double alpha, mpi::communicator &comm);
 template <class T>
 void endswap(T *objp)
 {
@@ -25,18 +33,39 @@ void endswap(T *objp)
     std::reverse(memp, memp + sizeof(T));
 }
 
-constexpr const char* prefix = "./data/mnist/";
+constexpr const char* prefix = "/home/vityha/CLionProjects/AKS/parallel-NN-library/data/mnist/";
 constexpr const char* trainImagesFilename = "train-images.idx3-ubyte";
 constexpr const char* trainLabelsFilename = "train-labels.idx1-ubyte";
 constexpr const char* testImagesFilename = "t10k-images.idx3-ubyte";
 constexpr const char* testLabelsFilename = "t10k-labels.idx1-ubyte";
 
-constexpr unsigned long NUM_ITERS = 10ul;
+constexpr unsigned long NUM_ITERS = 100ul;
 constexpr double ALPHA = 1e-5;
 
+//int main() {
+//    MatrixD::setParallelExecution(true);
+//    MatrixD::setNumberThreads(6);
+//    MatrixType trainImages, trainLabels, testImages, testLabels;
+//    std::string prefixStr{prefix};
+//
+//    readImages(trainImages, prefixStr + trainImagesFilename);
+//    readLabels(trainLabels, prefixStr + trainLabelsFilename);
+//    readImages(testImages, prefixStr + testImagesFilename);
+//    readLabels(testLabels, prefixStr + testLabelsFilename);
+//
+//    fitNN(trainImages, trainLabels,
+//          testImages, testLabels, NUM_ITERS, ALPHA);
+//
+//    return 0;
+//}
+
 int main() {
+    mpi::environment env;
+    mpi::communicator comm;
+
     MatrixD::setParallelExecution(true);
-    MatrixD::setNumberThreads(12);
+    MatrixD::setNumberThreads(4);
+
     MatrixType trainImages, trainLabels, testImages, testLabels;
     std::string prefixStr{prefix};
 
@@ -45,10 +74,68 @@ int main() {
     readImages(testImages, prefixStr + testImagesFilename);
     readLabels(testLabels, prefixStr + testLabelsFilename);
 
-    fitNN(trainImages, trainLabels,
-          testImages, testLabels, NUM_ITERS, ALPHA);
+    fitMpiNN(trainImages, trainLabels,
+          testImages, testLabels, NUM_ITERS, ALPHA, comm);
 
     return 0;
+}
+
+/* With use of benchmark.
+void mainFunc(benchmark::State &state) {
+
+    for (auto _: state) {
+        MatrixD::setParallelExecution(true);
+        MatrixD::setNumberThreads(state.range(0));
+        MatrixType trainImages, trainLabels, testImages, testLabels;
+        std::string prefixStr{prefix};
+
+        readImages(trainImages, prefixStr + trainImagesFilename);
+        readLabels(trainLabels, prefixStr + trainLabelsFilename);
+        readImages(testImages, prefixStr + testImagesFilename);
+        readLabels(testLabels, prefixStr + testLabelsFilename);
+
+        fitNN(trainImages, trainLabels,
+              testImages, testLabels, NUM_ITERS, ALPHA);
+    }
+}
+
+BENCHMARK(mainFunc)->DenseRange(1, 6, 1);
+
+BENCHMARK_MAIN();
+*/
+
+void fitMpiNN(MatrixType &trainImages, MatrixType &trainLabels, const MatrixType &testImages, const MatrixType &testLabels,
+           unsigned long numIters, double alpha, mpi::communicator &comm) {
+    size_t numInputsNeurons = trainImages.rows();
+    size_t numOutputNeurons = trainLabels.rows();
+    Model model{numInputsNeurons, std::make_shared<SoftMaxLossFunction>()};
+    model.addLayer<FCLayer>(numOutputNeurons, numInputsNeurons, -1.0/255, 1.0/255);
+
+    size_t batchSize = 30;
+    size_t numProcessors = comm.size();
+
+    DistributedTrainer distTrainer{std::make_shared<Model>(model), batchSize, alpha, std::make_shared<mpi::communicator>(comm), numProcessors};
+
+    auto start = get_current_time_fenced();
+    distTrainer.trainDataset(trainImages, trainLabels, numIters);
+    auto end = get_current_time_fenced();
+    if (comm.rank() == 0) {
+        std::cout << "Train time: " << to_us(end - start) << std::endl;
+    }
+
+    auto predicted = model.forwardPass(testImages);
+    size_t numCorrect = 0;
+    for (size_t colIdx = 0; colIdx < testImages.cols(); ++colIdx) {
+        size_t idx;
+        predicted.col(colIdx).maxCoeff(&idx);
+        if (testLabels(idx, colIdx) == 1) {
+            ++numCorrect;
+        }
+    }
+    if (comm.rank() == 0) {
+        std::cout << "Error Rate: " << 100.0 * (testImages.cols() - numCorrect) / testImages.cols() << '%' << std::endl;
+        std::cout << "Model: " << model << std::endl;
+    }
 }
 
 void fitNN(const MatrixType &trainImages, const MatrixType &trainLabels, const MatrixType &testImages, const MatrixType &testLabels,
@@ -63,10 +150,10 @@ void fitNN(const MatrixType &trainImages, const MatrixType &trainLabels, const M
             std::cout << "Loss on train:\t" << model.calcLoss(model.forwardPass(trainImages), trainLabels) << '\n';
             std::cout << "Loss on test:\t" << model.calcLoss(model.forwardPass(testImages), testLabels) << '\n' << std::endl;
         }
-        auto start = get_current_time_fenced();
+//        auto start = get_current_time_fenced();
         model.trainBatch(trainImages, trainLabels, alpha);
-        auto end = get_current_time_fenced();
-        std::cout << to_us(end - start) << std::endl;
+//        auto end = get_current_time_fenced();
+//        std::cout << to_us(end - start) << std::endl;
     }
 
     auto predicted = model.forwardPass(testImages);
