@@ -29,13 +29,10 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
         NNlib/src/trainer/Trainer.cpp NNlib/include/trainer/Trainer.h
         NNlib/src/trainer/DistributedTrainer.cpp NNlib/include/trainer/DistributedTrainer.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
-#if(MSVC)
-#    add_compile_options(/FI"NNlib/include/matrix/MatrixType.h")
-#else()
-#    # GCC or Clang
-##    add_compile_options(-include matrix/MatrixType.h)
-#endif()
 
+if(USE_EIGEN)
+    target_compile_definitions("${LIBRARY_NAME}" PUBLIC USE_EIGEN)
+endif()
 
 # Set installation prefix of Eigen3
 set(Eigen3_DIR ./Eigen3/share/eigen3/cmake)
