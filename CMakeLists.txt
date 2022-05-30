@@ -4,9 +4,13 @@ cmake_minimum_required(VERSION 3.21)
 set(PROJECT_NAME NNlib_and_test_example)
 set(LIBRARY_NAME NNlib)
 
-project("${PROJECT_NAME}")
+project("${PROJECT_NAME}" LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CUDA_STANDARD 17)
+
+# Options (you can change them)
+set(ENABLE_CUDA ON)
 
 # Create the library
 add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Layer.h
@@ -29,13 +33,15 @@ add_library("${LIBRARY_NAME}" NNlib/src/layer/Layer.cpp NNlib/include/layer/Laye
         NNlib/src/trainer/Trainer.cpp NNlib/include/trainer/Trainer.h
         NNlib/src/trainer/DistributedTrainer.cpp NNlib/include/trainer/DistributedTrainer.h)
 target_include_directories("${LIBRARY_NAME}" PUBLIC NNlib/include)
-#if(MSVC)
-#    add_compile_options(/FI"NNlib/include/matrix/MatrixType.h")
-#else()
-#    # GCC or Clang
-##    add_compile_options(-include matrix/MatrixType.h)
-#endif()
 
+if (ENABLE_CUDA)
+    target_compile_definitions(${LIBRARY_NAME} PUBLIC ENABLE_CUDA)
+    enable_language(CUDA)
+    target_sources(${LIBRARY_NAME} PRIVATE NNlib/include/matrix/cuda/cudacode.h)
+    target_sources(${LIBRARY_NAME} PRIVATE NNlib/src/matrix/cuda/cudacode.cpp)
+    set_source_files_properties(NNlib/include/matrix/cuda/cudacode.h PROPERTIES LANGUAGE CUDA)
+    set_source_files_properties(NNlib/src/matrix/cuda/cudacode.cpp PROPERTIES LANGUAGE CUDA)
+endif()
 
 # Set installation prefix of Eigen3
 set(Eigen3_DIR ./Eigen3/share/eigen3/cmake)

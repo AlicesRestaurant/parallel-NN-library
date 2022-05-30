@@ -4,6 +4,10 @@
 
 #include "matrix/MatrixD.h"
 
+#ifdef ENABLE_CUDA
+#include "matrix/cuda/cudacode.h"
+#endif
+
 #include <thread>
 #include <functional> // ref, cref
 #include <string>
@@ -96,7 +100,11 @@ MatrixD operator*(const MatrixD &left, const MatrixD &right) {
                 "Number of columns of the first matrix does not match number of rows of the second." +
                 std::to_string(left.cols()) + " != " + std::to_string(right.rows()));
     }
+#ifdef ENABLE_CUDA
+    return MatrixD(cudaMatrixMultiplication(left.data, right.data));
+#else
     return primitiveMultiplication(left, right);
+#endif
 }
 
 MatrixD primitiveMultiplication(const MatrixD &left, const MatrixD &right) {

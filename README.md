@@ -1,2 +1,4 @@
-# parallel-NN-library
+# Parallel Neural Network Library
 Parallel Neural Network Library
+
+# Usage

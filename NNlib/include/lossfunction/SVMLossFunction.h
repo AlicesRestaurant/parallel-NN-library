@@ -2,6 +2,7 @@
 #define NNLIB_AND_TEST_EXAMPLE_SVMLOSSFUNCTION_H
 
 #include <lossfunction/LossFunction.h>
+#include "matrix/MatrixType.h"
 
 #include <Eigen/Dense>
 
@@ -9,12 +10,12 @@
 
 class SVMLossFunction : public LossFunction {
 public:
-    double forwardPropagate(const Eigen::MatrixXd &bottomData, const Eigen::MatrixXd &labels) override {
+    double forwardPropagate(const MatrixType &bottomData, const MatrixType &labels) override {
         double lossValue = 0;
         for (size_t colIdx = 0; colIdx < bottomData.cols(); ++colIdx) {
             size_t groundTruthIdx = getGroundTruthIdxFromOneHot(labels.col(colIdx));
             // TODO: possibility to do without copying???
-            Eigen::VectorXd curColumnCopy{bottomData.col(colIdx)};
+            MatrixType curColumnCopy(bottomData.col(colIdx));
             curColumnCopy = (curColumnCopy.array() - bottomData(groundTruthIdx, colIdx) + 1).max(0);
             curColumnCopy(groundTruthIdx) = 0;
             lossValue += curColumnCopy.sum();
@@ -22,8 +23,8 @@ public:
         lossValue /= bottomData.cols();
         return lossValue;
     }
-    Eigen::MatrixXd backPropagate(const Eigen::MatrixXd &bottomData, const Eigen::MatrixXd &labels) override {
-        Eigen::MatrixXd gradientMatrix(bottomData.rows(), bottomData.cols());
+    MatrixType backPropagate(const MatrixType &bottomData, const MatrixType &labels) override {
+        MatrixType gradientMatrix(bottomData.rows(), bottomData.cols());
         for (size_t colIdx = 0; colIdx < bottomData.cols(); ++colIdx) {
             size_t groundTruthIdx = getGroundTruthIdxFromOneHot(labels.col(colIdx));
             double val = bottomData(groundTruthIdx, colIdx); // TODO: will there be aliasing if we don't copy?
@@ -37,10 +38,10 @@ public:
         return gradientMatrix;
     }
 protected:
-    size_t getGroundTruthIdxFromOneHot(const Eigen::VectorXd &oneHot) {
+    size_t getGroundTruthIdxFromOneHot(const MatrixType &oneHot) {
         size_t groundTruthIdx = 0;
         for (size_t rowIdx = 0; rowIdx < oneHot.rows(); ++rowIdx) {
-            if (oneHot(rowIdx) == 1) {
+            if (oneHot(rowIdx, 0) == 1) {
                 groundTruthIdx = rowIdx;
                 break;
             }
