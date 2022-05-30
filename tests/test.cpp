@@ -133,6 +133,21 @@ TEST(MatrixTest, Multiplication_3) {
     EXPECT_EQ(mA * mB, mC);
 }
 
+TEST(MatrixTest, Multiplication_4) {
+    MatrixD::setParallelExecution(true);
+    MatrixD::setNumberThreads(10);
+    MatrixD mat1{{1, 2, 3},
+                 {4, 5, 6},
+                 {7, 8, 9}};
+    MatrixD mat2{{0, 0, 1},
+                 {2, 1, 2},
+                 {-1 , 1, 1}};
+    MatrixD expected{{1, 5, 8},
+                     {4, 11, 20},
+                     {7, 17, 32}};
+    EXPECT_EQ(mat1 * mat2, expected);
+}
+
 TEST(MatrixTest, Transpose) {
     std::vector<double> v1{1, 5, 8, 6,
                            1, 3, 7, 6,
@@ -292,6 +307,7 @@ TEST(MatrixTest, Subblock2) {
     EXPECT_EQ(m1.subblock(1, 2, 1, 2), expected12);
 
     m1.subblock(0, 3, 0, 3) *= 2;
+
     MatrixD expected13{{2, 4, 6},
                        {8, 10, 12},
                        {14, 16, 18}};
