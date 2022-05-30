@@ -79,7 +79,36 @@ After creating model and setting layers, your can train it using `train()` metho
 model.trainBatch(trainX, trainY, alpha);
 ```
 
-To see other way of training the model, see `Trainer` class that incapsulates the training 
+To see other way of training the model, see `Trainer` class that encapsulates the training 
 process.
 
-## Documentation
+### DistributedTrainer class
+Alternative way to train the model is with `DistributedTrainer` class ecapsulating MPI:
+```c++
+mpi::environment env;
+mpi::communicator comm;
+
+MatrixD trainX = ...;
+MatrixD trainY = ...;
+
+size_t numInputsNeurons = trainX.rows();
+size_t numOutputNeurons = trainY.rows();
+Model model{numInputsNeurons, std::make_shared<SoftMaxLossFunction>()};
+model.addLayer<FCLayer>(numOutputNeurons, numInputsNeurons, -1.0/255, 1.0/255);
+
+size_t batchSize = 30;
+size_t numProcessors = comm.size();
+
+DistributedTrainer distTrainer{std::make_shared<Model>(model), batchSize, alpha, 
+                               std::make_shared<mpi::communicator>(comm), numProcessors};
+
+distTrainer.trainDataset(trainImages, trainLabels, numIters);
+```
+
+### Evaluating the model
+Use `forwardPass()` method to calculate output of the model:d
+```c++
+MatrixD testX = ...;
+auto predicted = model.forwardPass(testX);
+std::cout << "Predictions: " << predicted << std::endl;
+```
