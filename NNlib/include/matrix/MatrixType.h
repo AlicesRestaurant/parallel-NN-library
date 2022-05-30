@@ -11,8 +11,6 @@
 
 namespace mpi = boost::mpi;
 
-//#define USE_EIGEN
-
 #ifdef USE_EIGEN
 typedef Eigen::MatrixXd MatrixType;
 #else

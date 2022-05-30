@@ -23,40 +23,6 @@
 template<typename Container>
 class ViewOfData {
 public:
-    class Iterator {
-    public:
-        Iterator(ViewOfData &enclosing, typename Container::iterator iter): enclosing(enclosing), iter(iter) {}
-        typename Container::value_type &operator*() {
-            return *iter;
-        }
-        Iterator& operator++() {
-            iter += enclosing.step;
-            return *this;
-        }
-        Iterator operator++(int) {
-            Iterator saved = *this;
-            iter += enclosing.step;
-            return saved;
-        }
-        Iterator& operator+=(size_t incr) {
-            iter += enclosing.step * incr;
-            return *this;
-        }
-        Iterator& operator-=(int) {
-            iter -= enclosing.step;
-            return *this;
-        }
-        Iterator& operator==(Iterator other) {
-            return iter == other.iter;
-        }
-        Iterator& operator!=(Iterator other) {
-            return iter != other.iter;
-        }
-    private:
-        ViewOfData &enclosing;
-        typename Container::iterator iter;
-    };
-
     ViewOfData() = default;
     ViewOfData(const ViewOfData&) = default; // Copy inner array
     ViewOfData(ViewOfData&&) = default; // Move inner array
@@ -97,12 +63,6 @@ public:
         }
         return ViewOfData(con, height, width);
     }
-//    Iterator begin() {
-//        return Iterator(*this, dataPtr->begin() + start);
-//    }
-//    Iterator end() {
-//        return Iterator(*this, dataPtr->begin() + start + width + height * fullWidth);
-//    }
     typename Container::value_type &operator()(size_t i, size_t j) {
         return (*dataPtr)[start + j + i * fullWidth];
     }
@@ -112,15 +72,6 @@ public:
     long getNumViews() {
         return dataPtr.use_count();
     }
-//    [[nodiscard]] size_t size() const {
-//        return nSteps;
-//    }
-//    [[nodiscard]] const Container &getData() const {
-//        return *dataPtr;
-//    }
-//    [[nodiscard]] size_t getStart() const {
-//        return start;
-//    }
     [[nodiscard]] size_t getWidth() const {
         return width;
     }
